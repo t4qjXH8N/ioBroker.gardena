@@ -1,0 +1,35 @@
+{
+    "common": {
+        "name":                     "gardena",
+        "version":                  "0.0.1",
+	    "news": {
+			"0.0.1": {
+			  "en": "initial adapter",
+			  "de": "Initiale Version",
+			  "ru": "Первоначальный адаптер"
+			}
+		},
+        "title": "Gardena smart system adapter",
+        "desc": {
+				 "en": "ioBroker Gardena Smart System Adapter",
+				 "de": "ioBroker Gardena Smart System Adapter"
+		},
+        "platform":                 "Javascript/Node.js",
+        "mode":                     "daemon",
+        "icon":                     "gardena.png",
+        "enabled":                  true,
+		"extIcon":                  "https://raw.githubusercontent.com/t4qjXH8N/ioBroker.gardena/master/admin/gardena.png",
+		"keywords":                 ["gardena", "gardena smart system"],
+        "readme":                   "https://github.com/t4qjXH8N/ioBroker.gardena/master/README.md",
+		"loglevel":                 "debug",
+        "type":                     "hardware",
+        "restartAdapters":          ["vis"]
+    },
+    "native": {
+      "gardena_username": "me@me.com",
+      "gardena_password": "secret",
+      "gardena_polling_interval": "600"
+    },
+    "objects": [
+    ]
+}

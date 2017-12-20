@@ -1,24 +1,3 @@
-# ioBroker.gardena
-=================
-
-This is an [ioBroker](https://github.com/ioBroker/ioBroker) Adapter supporting the Gardena Smart System.
-
-## Description
-
-This adapter connects to the Gardena Smart System webservices. From this webservice a all device data is retrieved and stored in ioBroker states. These states are updated in a given interval, hence the states should be up to date.
-
-Commands can be send by setting the value of command states to true. This triggers an event and a command is sent to the Gardena Smart System.
-
-Please note that this is an alpha version and at the moment only commands of the mower are supported, since I do not have the possibility to test other equipment.
-
-## Installation
-
-Just install the adapter.
-
-## Disclaimer
-I am not in any association with Gardena or Husqvarna.
-
-## License
 The MIT License (MIT)
 
 Copyright (c) 2017-2018 Christian Vorholt <chvorholt@mail.com>

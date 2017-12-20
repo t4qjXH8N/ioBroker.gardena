@@ -1,0 +1,26 @@
+{
+  "name": "iobroker.gardena",
+  "version": "0.0.1",
+  "description": "Gardena Smart System Adapter",
+  "author": {
+    "name": "Christian Vorholt",
+    "email": "chvorholt@mail.com"
+  },
+  "homepage": "https://github.com/t4qjXH8N/ioBroker.gardena",
+  "readme": "https://github.com/t4qjXH8N/ioBroker.gardena/master/README.md",
+  "keywords": ["ioBroker", "gardena", "gardena smart system"],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/t4qjXH8N/ioBroker.gardena.git"
+  },
+  "dependencies": {
+    "request": "^2.83.0"
+  },
+  "devDependencies": {
+  },
+  "bugs": {
+    "url": "https://github.com/t4qjXH8N/ioBroker.gardena/issues"
+  },
+  "main": "main.js",
+  "license": "MIT"
+}
