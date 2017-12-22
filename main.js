@@ -8,7 +8,7 @@
  * {
  *  "common": {
  *      "name":                     "gardena",
- *       "version":                  "0.0.1",
+ *       "version":                  "0.0.2",
  *    "news": {
  *		"0.0.1": {
  *		  "en": "initial adapter",
@@ -35,6 +35,7 @@
  *    "native": {
  *      "gardena_username": "me@me.com",
  *      "gardena_password": "secret",
+ *      "gardena_reconnect_interval": "300"
  *      "gardena_polling_interval": "600"
  *    },
  *    "objects": [
@@ -61,9 +62,11 @@ var adapter = utils.adapter('gardena');
 const mower_commands_arr = ['park_until_next_timer', 'park_until_further_notice',
   'start_resume_schedule', 'start_override_timer', 'start_override_timer_duration'];
 
+var conn_timeout_id = null;
+
 // triggered when the adapter is installed
 adapter.on('install', function () {
-  // create a device node?
+  // create connection variable https://github.com/ioBroker/ioBroker/wiki/Adapter-Development-Documentation#infoconnection
 });
 
 // is called when the adapter shuts down - callback has to be called under any circumstances!
@@ -85,9 +88,29 @@ adapter.on('objectChange', function (id, obj) {
 // is called if a subscribed state changes
 adapter.on('stateChange', function (id, state) {
   // Warning, state can be null if it was deleted
-  adapter.log.debug('stateChnge ' + id + ' ' + JSON.stringify(state));
+  adapter.log.debug('stateChange ' + id + ' ' + JSON.stringify(state));
 
-  adapter.log.info('stateChange ' + id + ' ' + JSON.stringify(state));
+  // connection related state change
+  if(id && state && id === state.from.split('.')[2]+'.'+state.from.split('.')[3] + '.' + 'info.connection') {
+    adapter.log.debug('Change in connection detected.');
+
+    if(state.val === true) {
+      // got connection
+      clearTimeout(conn_timeout_id);
+      poll(function() {});
+      // enable polling
+      setTimeout(function () {
+        poll(function() {});
+      }, Number(adapter.config.gardena_polling_interval)*1000);
+    } else {
+      // lost connection
+      connect();
+      conn_timeout_id = setTimeout(function () {
+        connect();
+      }, Number(adapter.config.gardena_reconnect_interval)*1000);
+    }
+  }
+
   // you can use the ack flag to detect if it is status (true) or command (false)
   if (state && state.val && !state.ack) {
     adapter.log.debug('ack is not set!');
@@ -101,7 +124,6 @@ adapter.on('stateChange', function (id, state) {
 // is called when databases are connected and adapter received configuration.
 // start here!
 adapter.on('ready', function () {
-  // create connection variable https://github.com/ioBroker/ioBroker/wiki/Adapter-Development-Documentation#infoconnection
   adapter.setObjectNotExists('info.connection', {
     type: 'state',
     common: {
@@ -170,38 +192,95 @@ function main() {
   //syncConfig();
 
   // connect to gardena smart system service
-  connect(function (err) {
-    retrieveLocations(function (err) {
-      if(err) {
-        adapter.log.error('Error retrieving the locations.')
-      } else {
-        // get all devices and create iobroker tables
-        retrieveAllDevices(function (err) {
-      });
-      }
-    });
-  });
+  connect();
 
   // gardena subscribes to all state changes
   adapter.subscribeStates('devices.*.commands.*');
-
-  // enable polling
-  setTimeout(function () {
-    poll();
-  }, Number(adapter.config.gardena_polling_interval)*1000);
-
+  adapter.subscribeStates('info.connection');
 }
 
-// poll devices
-function poll(callback) {
-  // get all devices and create iobroker tables
-  retrieveAllDevices(function (err) {
-    if(err) {
-      adapter.log.error('An error occured during polling devices.');
+// connect to gardena smart cloud service
+function connect() {
+  adapter.log.info("Connecting to Gardena Smart System Service ...");
+
+  // get username and password from database
+  var username = adapter.config.gardena_username;
+  var password = adapter.config.gardena_password;
+
+  var options_connect = {
+    url: 'https://sg-api.dss.husqvarnagroup.net/sg-1/sessions',
+    headers: {
+      "Content-Type": "application/json"
+    },
+    method: "POST",
+    json: {
+      "sessions": {
+        "email": username,
+        "password": password
+      }
+    }
+  };
+
+  request(options_connect, function(err, response, body){
+    if(err || !response) {
+      // no connection or auth failure
+      adapter.setState('info.token', '', true);
+      adapter.setState('info.user_id', '', true);
+      adapter.setState('info.refresh_token', '', true);
+      adapter.setState('info.connection', false, true);
+
+      adapter.log.error(err);
+      adapter.log.info('Connection failure.');
     } else {
-      adapter.log.info('Polling successful!');
+      // connection successful
+      adapter.log.debug('Response: ' + response.statusMessage);
+
+      // connection established but auth failure
+      if(response.statusMessage === 'Unauthorized') {
+        adapter.setState('info.token', '', true);
+        adapter.setState('info.user_id', '', true);
+        adapter.setState('info.refresh_token', '', true);
+        adapter.setState('info.connection', false, true);
+
+        adapter.log.debug('Delete auth tokens.');
+        adapter.log.error('Connection works, but authorization failure (wrong password?)!');
+      } else {
+        // save tokens etc.
+        adapter.setState('info.token', body.sessions.token, true);
+        adapter.setState('info.user_id', body.sessions.user_id, true);
+        adapter.setState('info.refresh_token', body.sessions.refresh_token, true);
+        adapter.setState('info.connection', true, true);
+
+        adapter.log.debug('Saved auth tokens.');
+        adapter.log.info('Connection successful.');
+      }
     }
   });
+}
+
+// poll locations, devices, etc.
+function poll(callback) {
+
+  adapter.log.info('Poll locations.');
+  retrieveLocations(function (err) {
+    if(err) {
+      adapter.log.error('Error retrieving the locations.')
+    } else {
+      // get all devices and create iobroker tables
+      adapter.log.debug('Retrieved all locations, get all devices');
+
+      // get all devices and create iobroker tables
+      retrieveAllDevices(function (err) {
+        if(err) {
+          adapter.log.error('An error occured during polling devices.');
+        } else {
+          adapter.log.info('Polling successful!');
+        }
+      });
+    }
+  });
+
+  if(callback) callback(false);
 }
 
 // send a command to the gardena device
@@ -223,12 +302,8 @@ function sendCommand(cmd, deviceid, locationid, callback) {
 
     request(options, function (err, response, jsondata) {
       if (err) {
-        adapter.log.error(err);
+        adapter.log.error('Could not send command.');
         adapter.setState('info.connection', false, true);
-        adapter.log.debug('Could not send command.');
-
-        reconnect(function (err) {
-        });
       } else {
         adapter.log.info('Command send.');
       }
@@ -236,29 +311,6 @@ function sendCommand(cmd, deviceid, locationid, callback) {
   });
 
   callback(false);
-}
-
-// try reconnect to smart gardena
-function reconnect(callback) {
-
-  // try to connect to gardena smart system
-  connect(function (err) {
-    if(err) {
-      adapter.log.error('Reconnect failed..');
-      callback(true);
-    } else {
-      callback(false);
-    }
-
-    retrieveLocations(function (err) {
-      if(err) adapter.log.error('Error retrieving the locations.');
-
-      // get all devices and create iobroker tables
-      retrieveAllDevices(function (err) {
-
-      });
-    });
-  });
 }
 
 // an event was triggered
@@ -308,67 +360,6 @@ function getConnectionInfo(callback) {
   });
 }
 
-// connect to gardena smart cloud service
-function connect(callback) {
-  adapter.log.info("Connecting to Gardena Smart System Service ...");
-  // set connection status to false
-  adapter.setState('info.connection', false, true);
-
-  // clear tokens
-  adapter.setState('info.token', '', true);
-  adapter.setState('info.user_id', '', true);
-  adapter.setState('info.refresh_token', '', true);
-
-  // get username and password from database
-  var username = adapter.config.gardena_username;
-  var password = adapter.config.gardena_password;
-
-  var options_connect = {
-    url: 'https://sg-api.dss.husqvarnagroup.net/sg-1/sessions',
-    headers: {
-      "Content-Type": "application/json"
-    },
-    method: "POST",
-    json: {
-      "sessions": {
-        "email": username,
-        "password": password
-      }
-    }
-  };
-
-  request(options_connect, function(err, response, body){
-    if(err || !response) {
-      // no connection or auth failure
-      adapter.log.error(err);
-      adapter.setState('info.connection', false, true);
-      adapter.log.debug('Could not auth.');
-      adapter.log.info('Connection failure..');
-      callback(err);
-    } else {
-      // connection successful
-      adapter.log.debug('Response: ' + response.statusMessage);
-
-      if(response.statusMessage === 'Unauthorized') {
-        adapter.log.error('Connection works, but authorization failure (wrong password?)!');
-        callback(true);
-      } else {
-        // save tokens etc.
-        adapter.setState('info.token', body.sessions.token, true);
-        adapter.setState('info.user_id', body.sessions.user_id, true);
-        adapter.setState('info.refresh_token', body.sessions.refresh_token, true);
-
-        adapter.setState('info.connection', true, true);
-
-        adapter.log.debug('Saved auth tokens.');
-        adapter.log.info('Connection successful.');
-
-        callback(false);
-      }
-    }
-  });
-}
-
 // retrieve locations
 function retrieveLocations(callback) {
   getConnectionInfo(function (err, token, user_id, refresh_token) {
@@ -385,20 +376,14 @@ function retrieveLocations(callback) {
 
     request(options, function (err, response, jsondata) {
       if (err) {
-        adapter.log.error(err);
         adapter.setState('info.connection', false, true);
-        adapter.log.debug('Could not retrieve locations.');
-
-        reconnect(function (err) {
-        });
+        adapter.log.error('Could not retrieve locations.');
+      } else {
+        adapter.log.info('Update DB locations.');
+        updateDBLocations(jsondata, callback);
       }
-
-      updateDBLocations(jsondata, function () {
-      });
     });
   });
-
-  callback(false);
 }
 
 // update locations in database
@@ -471,6 +456,8 @@ function updateDBLocations(jsondata, callback) {
       }
     }
   }
+
+  callback(false);
 }
 
 // get device data for all locations
@@ -484,7 +471,11 @@ function retrieveAllDevices(callback) {
       for (var i=0;i<channels.length;i++) {
         var location_id = channels[0].common.name;
         retrieveDevicesFromLocation(token, location_id, function (err) {
-          if (err) adapter.log.error('Could not get device from location ' + location_id);
+          if (err) {
+            adapter.log.error('Could not get device from location ' + location_id);
+          }
+
+          callback(false);
         });
       }
     });
@@ -507,93 +498,13 @@ function retrieveDevicesFromLocation(token, location_id, callback) {
 
   request(options, function (err, response, jsondata) {
     if (err) {
-      adapter.log.error(err);
       adapter.setState('info.connection', false, true);
-      adapter.log.debug('Could not retrieve locations.');
-
-      reconnect(function (err) {
-      });
+      adapter.log.debug('Could not retrieve devices.');
+    } else {
+      adapter.log.info('Retrieve device data.');
+      updateDBDevices(location_id, jsondata, callback);
     }
-
-    updateDBDevices(location_id, jsondata, function (err) {
-    });
-
   });
-  callback(false);
-}
-
-// setStateEx
-function setStateEx(id, common, val, ack, callback) {
-  var a = {
-    type: 'state',
-    native: {}
-    };
-
-  var common_full = Object.assign({}, a, common);
-
-  var cfunc = function (err) {
-    adapter.setState(id, val, ack, function(err) {
-      if(err) adapter.log.error('Could not create extende state id:' + id + ', val:' + val);
-    });
-  };
-
-  adapter.setObject(id, common_full, cfunc);
-}
-
-// write JSON onject into DB
-function JSONtoDB(json, root_id, callback) {
-
-  for (var citem in json) {
-    if (!json.hasOwnProperty(citem)) continue;
-
-    if (Array.isArray(json[citem])) {
-      for (var i = 0; i < json[citem].length; i++) {
-        var curelem = json[citem][i];
-
-        // check if curelem is an object
-        if(typeof curelem === 'object') {
-          JSONtoDB(curelem, root_id + '.' + citem + '.' + i, callback);
-        } else {
-          var d = {};
-          d[i] = curelem;
-          JSONtoDB(d, root_id + '.' + citem, callback);
-        }
-      }
-    } else if (typeof json[citem] === 'object') {
-        JSONtoDB(json[citem], root_id + '.' + citem, callback);
-    } else if (typeof json[citem] === 'string') {
-      setStateEx(root_id + '.' + citem, {
-        common: {
-          name: citem,
-          write: false,
-          read: true,
-          type: "string",
-          role: "gardena.string"
-        }
-      }, json[citem], true);
-    } else if (typeof json[citem] === 'boolean') {
-      setStateEx(root_id + '.' + citem, {
-        common: {
-          name: citem,
-          write: false,
-          read: true,
-          def: false,
-          type: "boolean",
-          role: "gardena.boolean"
-        }
-      }, json[citem], true);
-    } else if (typeof json[citem] === 'number') {
-      setStateEx(root_id + '.' + citem, {
-        common: {
-          name: citem,
-          write: false,
-          read: true,
-          type: "number",
-          role: "gardena.number"
-        }
-      }, json[citem], true);
-    }
-  }
 }
 
 // update database devices
@@ -613,8 +524,7 @@ function updateDBDevices(location_id, jsondata, callback) {
         native: {}
       });
 
-      JSONtoDB(cdev, 'devices.' + cdev.id, function(err) {
-      });
+      JSONtoDB(cdev, 'devices.' + cdev.id);
 
       // save location id (redundant, but simpler)
       setStateEx('devices.' + cdev.id + '.locationid', {
@@ -655,7 +565,6 @@ function updateDBDevices(location_id, jsondata, callback) {
       adapter.log.error('Invalid device id!');
     }
   }
-
   callback(false);
 }
 
@@ -663,3 +572,80 @@ function updateDBDevices(location_id, jsondata, callback) {
 function syncConfig() {
 
 }
+
+// write JSON object into DB
+function JSONtoDB(json, root_id) {
+
+  for (var citem in json) {
+    if (!json.hasOwnProperty(citem)) continue;
+
+    if (Array.isArray(json[citem])) {
+      for (var i = 0; i < json[citem].length; i++) {
+        var curelem = json[citem][i];
+
+        // check if curelem is an object
+        if(typeof curelem === 'object') {
+          JSONtoDB(curelem, root_id + '.' + citem + '.' + i);
+        } else {
+          var d = {};
+          d[i] = curelem;
+          JSONtoDB(d, root_id + '.' + citem);
+        }
+      }
+    } else if (typeof json[citem] === 'object') {
+      JSONtoDB(json[citem], root_id + '.' + citem);
+    } else if (typeof json[citem] === 'string') {
+      setStateEx(root_id + '.' + citem, {
+        common: {
+          name: citem,
+          write: false,
+          read: true,
+          type: "string",
+          role: "gardena.string"
+        }
+      }, json[citem], true);
+    } else if (typeof json[citem] === 'boolean') {
+      setStateEx(root_id + '.' + citem, {
+        common: {
+          name: citem,
+          write: false,
+          read: true,
+          def: false,
+          type: "boolean",
+          role: "gardena.boolean"
+        }
+      }, json[citem], true);
+    } else if (typeof json[citem] === 'number') {
+      setStateEx(root_id + '.' + citem, {
+        common: {
+          name: citem,
+          write: false,
+          read: true,
+          type: "number",
+          role: "gardena.number"
+        }
+      }, json[citem], true);
+    }
+  }
+}
+
+// setStateEx
+function setStateEx(id, common, val, ack, callback) {
+  var a = {
+    type: 'state',
+    native: {}
+  };
+
+  var common_full = Object.assign({}, a, common);
+
+  var cfunc = function (err) {
+    adapter.setState(id, val, ack, function(err) {
+      if(err) adapter.log.error('Could not create extende state id:' + id + ', val:' + val);
+    });
+  };
+
+  adapter.setObject(id, common_full, cfunc);
+
+  if(callback) callback(false);
+}
+
