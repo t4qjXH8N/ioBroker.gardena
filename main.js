@@ -17,7 +17,7 @@ var request = require('request');
 // you have to call the adapter function and pass a options object
 // name has to be set and has to be equal to adapters folder name and main file name excluding extension
 // adapter will be restarted automatically every time as the configuration changed, e.g system.adapter.gardena.0
-var adapter = utils.adapter('gardena');
+var adapter = utils.Adapter('gardena');
 
 const mower_commands_arr = {
   'park_until_next_timer': {},
