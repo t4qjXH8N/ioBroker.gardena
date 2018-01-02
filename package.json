@@ -8,7 +8,11 @@
   },
   "homepage": "https://github.com/t4qjXH8N/ioBroker.gardena",
   "readme": "https://github.com/t4qjXH8N/ioBroker.gardena/master/README.md",
-  "keywords": ["ioBroker", "gardena", "gardena smart system"],
+  "keywords": [
+    "ioBroker",
+    "gardena",
+    "gardena smart system"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/t4qjXH8N/ioBroker.gardena.git"
@@ -17,10 +21,15 @@
     "request": "^2.83.0"
   },
   "devDependencies": {
+    "mocha": "^4.1.0",
+    "chai": "^4.1.2"
   },
   "bugs": {
     "url": "https://github.com/t4qjXH8N/ioBroker.gardena/issues"
   },
   "main": "main.js",
-  "license": "MIT"
+  "license": "MIT",
+  "scripts": {
+    "test": "node node_modules/mocha/bin/mocha --exit"
+  }
 }
