@@ -1,8 +1,12 @@
 {
     "common": {
         "name":                     "gardena",
-        "version":                  "0.0.2",
+        "version":                  "0.0.3",
 	    "news": {
+          "0.0.3": {
+            "en": "Bugfix: state is only updated once.",
+            "de": "Fehlerbehebung: Zustand wird nur einmalig aktualisiert.."
+          },
           "0.0.2": {
             "en": "Improved connection handling. Many bugfixes.",
             "de": "Verbesserte Verbindungsverwaltung. Viele Fehlerbehebungen."

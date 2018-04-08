@@ -15,6 +15,11 @@ Please note that this is an alpha version and at the moment only commands of the
 
 Just install the adapter.
 
+## Changelog
+
+# 0.0.3 (08-04-2018)
+Bugfix: state was updated only once
+
 ## Disclaimer
 I am not in any association with Gardena or Husqvarna.
 

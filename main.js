@@ -8,8 +8,12 @@
  * {
  *  "common": {
  *      "name":                     "gardena",
- *       "version":                  "0.0.2",
+ *       "version":                  "0.0.3",
  *    "news": {
+ *		"0.0.2": {
+ *		  "en": "bugfix only single update",
+ *		  "de": "Fehler behoben bei dem der Status nicht aktualisiert wurde."
+ *		}
  *		"0.0.1": {
  *		  "en": "initial adapter",
  *		  "de": "Initiale Version",
@@ -99,7 +103,7 @@ adapter.on('stateChange', function (id, state) {
       clearTimeout(conn_timeout_id);
       poll(function() {});
       // enable polling
-      setTimeout(function () {
+      setInterval(function () {
         poll(function() {});
       }, Number(adapter.config.gardena_polling_interval)*1000);
     } else {
