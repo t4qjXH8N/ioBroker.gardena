@@ -2,50 +2,6 @@
  *
  * gardena smart system adapter
  *
- *
- *  file io-package.json comments:
- *
- * {
- *  "common": {
- *      "name":                     "gardena",
- *       "version":                  "0.0.3",
- *    "news": {
- *		"0.0.2": {
- *		  "en": "bugfix only single update",
- *		  "de": "Fehler behoben bei dem der Status nicht aktualisiert wurde."
- *		}
- *		"0.0.1": {
- *		  "en": "initial adapter",
- *		  "de": "Initiale Version",
- *		  "ru": "Первоначальный адаптер"
- *		}
- *	},
- *       "title":                    "Gardena smart system adapter",
- *       "desc":                     {
- *			 "en": "ioBroker Gardena Smart System Adapter",
- *			 "de": "ioBroker Gardena Smart System Adapter"
- *	},
- *      "platform":                 "Javascript/Node.js",
- *      "mode":                     "daemon",
- *      "icon":                     "gardena.png",
- *      "enabled":                  true,
- *  "extIcon":                  "https://raw.githubusercontent.com/t4qjXH8N/ioBroker.gardena/master/admin/gardena.png",
- *	"keywords":                 ["gardena", "gardena smart system"],
- *       "readme":                   "https://github.com/t4qjXH8N/ioBroker.gardena/master/README.md",
- *		"loglevel":                 "info",
- *        "type":                     "hardware",
- *        "restartAdapters":          ["vis"]
- *    },
- *    "native": {
- *      "gardena_username": "me@me.com",
- *      "gardena_password": "secret",
- *      "gardena_reconnect_interval": "300"
- *      "gardena_polling_interval": "600"
- *    },
- *    "objects": [
- *   ]
- * }
- *
  */
 
 /* jshint -W097 */// jshint strict:false
@@ -63,8 +19,19 @@ var request = require('request');
 // adapter will be restarted automatically every time as the configuration changed, e.g system.adapter.gardena.0
 var adapter = utils.adapter('gardena');
 
-const mower_commands_arr = ['park_until_next_timer', 'park_until_further_notice',
-  'start_resume_schedule', 'start_override_timer', 'start_override_timer_duration'];
+const mower_commands_arr = {
+  'park_until_next_timer': {},
+  'park_until_further_notice': {},
+  'start_resume_schedule': {},
+  'start_override_timer': {
+    'duration': {
+      'val': 1440,
+      'type': 'number',
+      'desc': 'Ignore timer.'
+    }
+  },
+  'start_override_timer_duration': {}
+};
 
 var conn_timeout_id = null;
 
@@ -199,7 +166,7 @@ function main() {
   connect();
 
   // gardena subscribes to all state changes
-  adapter.subscribeStates('devices.*.commands.*');
+  adapter.subscribeStates('devices.*.commands.*.send');
   adapter.subscribeStates('info.connection');
 }
 
@@ -292,29 +259,46 @@ function sendCommand(cmd, deviceid, locationid, callback) {
 
   getConnectionInfo(function (err, token, user_id, refresh_token) {
     // setup the request
-    var options = {
-      url: 'https://sg-api.dss.husqvarnagroup.net/sg-1/devices/' + deviceid + '/abilities/mower/command?locationId=' + locationid,
-      headers: {
-        "Content-Type": "application/json",
-        "X-Session": token
-      },
-      method: "POST",
-      json: {
-        "name": cmd
-      }
+    //'gardena.' + adapter.instance + '.devices.' + deviceid + '.commands.' + cmd
+
+    var json2send = {
+      "name": cmd,
+      "parameters": {}
     };
 
-    request(options, function (err, response, jsondata) {
-      if (err) {
-        adapter.log.error('Could not send command.');
-        adapter.setState('info.connection', false, true);
-      } else {
-        adapter.log.info('Command send.');
+    adapter.getForeignStates(adapter.namespace + '.devices.' + deviceid + '.commands.' + cmd + '.*', function (err, objs) {
+      for(var cobj in objs) {
+        // ignore send state object
+        if(cobj.split('.')[cobj.split('.').length-1] !== 'send') {
+          var param = cobj.split('.')[cobj.split('.').length-1];
+
+          json2send['parameters'][param] = objs[cobj].val;
+        }
       }
+
+      // send the request
+      var options = {
+        url: 'https://sg-api.dss.husqvarnagroup.net/sg-1/devices/' + deviceid + '/abilities/mower/command?locationId=' + locationid,
+        headers: {
+          "Content-Type": "application/json",
+          "X-Session": token
+        },
+        method: "POST",
+        json: json2send
+      };
+
+      request(options, function (err, response, jsondata) {
+        if (err) {
+          adapter.log.error('Could not send command.');
+          adapter.setState('info.connection', false, true);
+        } else {
+          adapter.log.info('Command send.');
+        }
+      });
     });
-  });
 
   callback(false);
+  });
 }
 
 // an event was triggered
@@ -548,19 +532,41 @@ function updateDBDevices(location_id, jsondata, callback) {
           switch(state.val) {
             case 'mower':
               // create command states
-              for(var i=0;i<mower_commands_arr.length;i++) {
-                setStateEx('devices.' + cdev.id + '.commands.' + mower_commands_arr[i], {
+
+              // first iterate over the commands
+              for (var curcmd in mower_commands_arr) {
+                if (!mower_commands_arr.hasOwnProperty(curcmd)) continue;
+
+                // create activator state
+                setStateEx('devices.' + cdev.id + '.commands.' + curcmd + '.send', {
                   common: {
-                    name: mower_commands_arr[i],
-                    role: "gardena.command_mower",
-                    desc: mower_commands_arr[i],
+                    name: 'send',
+                    role: 'gardena.command_trigger',
+                    desc: 'Send command.',
                     write: true,
                     read: true,
                     type: "boolean"
                   }
                 }, false, true);
+
+                // then iterate over the parameters
+                for (var cparam in mower_commands_arr[curcmd]) {
+
+                  // create parameter
+                  setStateEx('devices.' + cdev.id + '.commands.' + curcmd + '.' + cparam, {
+                    common: {
+                      name: cparam,
+                      role: 'gardena.command_parameter',
+                      desc: mower_commands_arr[curcmd][cparam].desc,
+                      write: true,
+                      read: true,
+                      type: mower_commands_arr[curcmd][cparam].type
+                    }
+                  }, mower_commands_arr[curcmd][cparam].val, true);
+
+                }
               }
-              break;
+            break;
           }
         }
       });

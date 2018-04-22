@@ -1,11 +1,15 @@
 {
     "common": {
         "name":                     "gardena",
-        "version":                  "0.0.3",
+        "version":                  "0.1.0",
 	    "news": {
+          "0.1.0": {
+            "en": "Commands can be parametrized.",
+            "de": "Kommandos können mit Parametern gesendet werden."
+          },
           "0.0.3": {
             "en": "Bugfix: state is only updated once.",
-            "de": "Fehlerbehebung: Zustand wird nur einmalig aktualisiert.."
+            "de": "Fehlerbehebung: Zustand wird nur einmalig aktualisiert."
           },
           "0.0.2": {
             "en": "Improved connection handling. Many bugfixes.",
@@ -29,7 +33,7 @@
 		"extIcon":                  "https://raw.githubusercontent.com/t4qjXH8N/ioBroker.gardena/master/admin/gardena.png",
 		"keywords":                 ["gardena", "gardena smart system"],
         "readme":                   "https://github.com/t4qjXH8N/ioBroker.gardena/master/README.md",
-		"loglevel":                 "debug",
+		"loglevel":                 "info",
         "type":                     "hardware",
         "restartAdapters":          ["vis"]
     },

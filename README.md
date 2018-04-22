@@ -1,3 +1,4 @@
+![Logo](admin/gardena.png)
 # ioBroker.gardena
 =================
 
@@ -12,10 +13,11 @@ Commands can be send by setting the value of command states to true. This trigge
 Please note that this is an alpha version and at the moment only commands of the mower are supported, since I do not have the possibility to test other equipment.
 
 ## Installation
-
-Just install the adapter.
+Just install the adapter in the iobroker admin interface.
 
 ## Changelog
+# 0.1.0 (22-04-2018)
+Commands can be parametrized by designated states
 
 # 0.0.3 (08-04-2018)
 Bugfix: state was updated only once
