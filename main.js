@@ -658,4 +658,3 @@ function setStateEx(id, common, val, ack, callback) {
 
   if(callback) callback(false);
 }
-
