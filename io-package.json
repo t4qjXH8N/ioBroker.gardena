@@ -35,14 +35,19 @@
         "readme":                   "https://github.com/t4qjXH8N/ioBroker.gardena/master/README.md",
 		"loglevel":                 "info",
         "type":                     "hardware",
-        "restartAdapters":          ["vis"]
+        "restartAdapters":          [],
+        "authors": [
+            {
+                "name": "Christian Vorholt",
+                "email": "chvorholt@mail.com"
+            }
+        ]
     },
     "native": {
-      "gardena_username": "me@me.com",
-      "gardena_password": "secret",
-      "gardena_reconnect_interval": "300",
-      "gardena_polling_interval": "600"
+        "gardena_username": "me@me.com",
+        "gardena_password": "secret",
+        "gardena_reconnect_interval": "300",
+        "gardena_polling_interval": "600"
     },
-    "objects": [
-    ]
+    "objects": []
 }
