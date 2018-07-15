@@ -19,6 +19,8 @@ var request = require('request');
 // adapter will be restarted automatically every time as the configuration changed, e.g system.adapter.gardena.0
 var adapter = utils.Adapter('gardena');
 
+const min_polling_interval = 60; // minimum polling interval in seconds
+
 const mower_commands_arr = {
   'park_until_next_timer': {},
   'park_until_further_notice': {},
@@ -65,21 +67,28 @@ adapter.on('stateChange', function (id, state) {
   if(id && state && id === state.from.split('.')[2]+'.'+state.from.split('.')[3] + '.' + 'info.connection') {
     adapter.log.debug('Change in connection detected.');
 
-    if(state.val === true) {
-      // got connection
-      clearTimeout(conn_timeout_id);
-      poll(function() {});
-      // enable polling
-      setInterval(function () {
-        poll(function() {});
-      }, Number(adapter.config.gardena_polling_interval)*1000);
-    } else {
-      // lost connection
-      connect();
-      conn_timeout_id = setTimeout(function () {
-        connect();
-      }, Number(adapter.config.gardena_reconnect_interval)*1000);
-    }
+      if (Number(adapter.config.gardena_polling_interval)*1000 < min_polling_interval) {
+        adapter.log.error('Polling interval should be greater than ' + min_polling_interval);
+      } else {
+        if (state.val === true) {
+          // got connection
+          clearTimeout(conn_timeout_id);
+          poll(function () {
+          });
+          // enable polling
+          setInterval(function () {
+            poll(function (err) {
+
+            });
+          }, Number(adapter.config.gardena_polling_interval) * 1000);
+        } else {
+          // lost connection
+          connect();
+          conn_timeout_id = setTimeout(function () {
+            connect();
+          }, Number(adapter.config.gardena_reconnect_interval) * 1000);
+        }
+      }
   }
 
   // you can use the ack flag to detect if it is status (true) or command (false)
