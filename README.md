@@ -16,17 +16,20 @@ Please note that this is an alpha version and at the moment only commands of the
 Just install the adapter in the iobroker admin interface.
 
 ## Changelog
+# 1.0.1 (17-07-2018)
+Readded travis/appveyor testing.
+
 # 1.0.0 (17-07-2018)
 Added support for Admin3.
 
 # 0.1.1 (15-07-2018)
-Minimum polling time is 60 seconds
+Minimum polling time is 60 seconds.
 
 # 0.1.0 (22-04-2018)
-Commands can be parametrized by designated states
+Commands can be parametrized by designated states.
 
 # 0.0.3 (08-04-2018)
-Bugfix: state was updated only once
+Bugfix: state was updated only once.
 
 ## Disclaimer
 I am not in any association with Gardena or Husqvarna.
