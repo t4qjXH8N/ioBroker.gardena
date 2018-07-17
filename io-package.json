@@ -1,8 +1,12 @@
 {
     "common": {
         "name":                     "gardena",
-        "version":                  "0.1.1",
-	    "news": {
+        "version":                  "1.0.0",
+        "news": {
+          "1.0.0": {
+            "en": "Added support for Admin3.",
+            "de": "Unterstützung für Admin3 hinzugefügt."
+          },
           "0.1.1": {
             "en": "Minimum polling time is 60s.",
             "de": "Die Poll-Dauer muss mindestens 30s betragen."
@@ -19,27 +23,32 @@
             "en": "Improved connection handling. Many bugfixes.",
             "de": "Verbesserte Verbindungsverwaltung. Viele Fehlerbehebungen."
           },
-			"0.0.1": {
-			  "en": "initial adapter",
-			  "de": "Initiale Version",
-			  "ru": "Первоначальный адаптер"
-			}
-		},
+            "0.0.1": {
+              "en": "initial adapter",
+              "de": "Initiale Version",
+              "ru": "Первоначальный адаптер"
+            }
+        },
         "title": "Gardena smart system adapter",
+        "titleLang": {
+          "en": "Gardena smart system adapter",
+          "de": "Gardena Smart System Adapter"
+        },        
         "desc": {
-				 "en": "ioBroker Gardena Smart System Adapter",
-				 "de": "ioBroker Gardena Smart System Adapter"
-		},
+          "en": "ioBroker Gardena Smart System Adapter",
+          "de": "ioBroker Gardena Smart System Adapter"
+        },
         "platform":                 "Javascript/Node.js",
         "mode":                     "daemon",
         "icon":                     "gardena.png",
         "enabled":                  true,
-		"extIcon":                  "https://raw.githubusercontent.com/t4qjXH8N/ioBroker.gardena/master/admin/gardena.png",
-		"keywords":                 ["gardena", "gardena smart system"],
+        "extIcon":                  "https://raw.githubusercontent.com/t4qjXH8N/ioBroker.gardena/master/admin/gardena.png",
+        "keywords":                 ["gardena", "gardena smart system"],
         "readme":                   "https://github.com/t4qjXH8N/ioBroker.gardena/master/README.md",
-		"loglevel":                 "info",
+        "loglevel":                 "info",
         "type":                     "hardware",
         "restartAdapters":          [],
+        "materialize":              true,
         "authors": [
             {
                 "name": "Christian Vorholt",

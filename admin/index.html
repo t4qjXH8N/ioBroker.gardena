@@ -18,6 +18,7 @@
 <link rel="stylesheet" type="text/css" href="../../css/adapter.css"/>
 <script type="text/javascript" src="../../js/translate.js"></script>
 <script type="text/javascript" src="../../js/adapter-settings.js"></script>
+<script type="text/javascript" src="words.js"></script>
 
 <!-- you have to define 2 functions in the global scope: -->
 <style>
@@ -32,20 +33,6 @@
 </style>
 
 <script type="text/javascript">
-    // Dictionary (systemDictionary is global variable from adapter-settings.js)
-    systemDictionary = {
-        "gardena settings": {"de": "Gardena Smart System Einstellungen", "en": "Gardena smart system settings"},
-        "login_data": {"de": "Anmeldedaten", "en": "Authentification"},
-        "gardena_username": {"de": "Benutzername", "en": "Username"},
-        "gardena_password": {"de": "Passwort", "en": "Password"},
-        "gardena_reconnect_interval": {"de": "Zeit zwischen Verbindungsversuchen (s)", "en": "Time between reconnection tries (s)"},
-        "gardena_polling_interval": {"de": "Abfrageintervall (s)", "en": "Polling interval (s)"},
-        "on save adapter restarts with new config immediately": {
-          "de": "Beim Speichern von Einstellungen wird der Adapter sofort neu gestartet.",
-          "ru": "Сразу после сохранения настроек драйвер перезапуститься с новыми значениями"
-        }
-    };
-
     function setValue(id, value, onChange) {
         // example: select elements with id=key and class=value and insert value
         if ($('#' + id + '.value').attr('type') == 'checkbox') {

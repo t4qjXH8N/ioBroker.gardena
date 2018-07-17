@@ -16,6 +16,9 @@ Please note that this is an alpha version and at the moment only commands of the
 Just install the adapter in the iobroker admin interface.
 
 ## Changelog
+# 1.0.0 (17-07-2018)
+Added support for Admin3.
+
 # 0.1.1 (15-07-2018)
 Minimum polling time is 60 seconds
 
