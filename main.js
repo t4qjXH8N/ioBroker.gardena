@@ -9,15 +9,17 @@
 "use strict";
 
 // you have to require the utils module and call adapter function
-var utils =    require(__dirname + '/lib/utils'); // Get common adapter utils
+const utils =    require(__dirname + '/lib/utils'); // Get common adapter utils
 
 // for communication
-var request = require('request');
+const request = require('request');
 
 // you have to call the adapter function and pass a options object
 // name has to be set and has to be equal to adapters folder name and main file name excluding extension
 // adapter will be restarted automatically every time as the configuration changed, e.g system.adapter.gardena.0
-var adapter = utils.Adapter('gardena');
+const adapter = utils.Adapter('gardena');
+
+const wiffi_configs = require(__dirname + '/wiffi_config.json');
 
 const min_polling_interval = 60; // minimum polling interval in seconds
 
@@ -35,7 +37,7 @@ const mower_commands_arr = {
   'start_override_timer_duration': {}
 };
 
-var conn_timeout_id = null;
+let conn_timeout_id = null;
 
 // triggered when the adapter is installed
 adapter.on('install', function () {
@@ -184,10 +186,10 @@ function connect() {
   adapter.log.info("Connecting to Gardena Smart System Service ...");
 
   // get username and password from database
-  var username = adapter.config.gardena_username;
-  var password = adapter.config.gardena_password;
+  let username = adapter.config.gardena_username;
+  let password = adapter.config.gardena_password;
 
-  var options_connect = {
+  let options_connect = {
     url: 'https://sg-api.dss.husqvarnagroup.net/sg-1/sessions',
     headers: {
       "Content-Type": "application/json"
@@ -276,17 +278,17 @@ function sendCommand(cmd, deviceid, locationid, callback) {
     };
 
     adapter.getForeignStates(adapter.namespace + '.devices.' + deviceid + '.commands.' + cmd + '.*', function (err, objs) {
-      for(var cobj in objs) {
+      for(let cobj in objs) {
         // ignore send state object
         if(cobj.split('.')[cobj.split('.').length-1] !== 'send') {
-          var param = cobj.split('.')[cobj.split('.').length-1];
+          let param = cobj.split('.')[cobj.split('.').length-1];
 
           json2send['parameters'][param] = objs[cobj].val;
         }
       }
 
       // send the request
-      var options = {
+      let options = {
         url: 'https://sg-api.dss.husqvarnagroup.net/sg-1/devices/' + deviceid + '/abilities/mower/command?locationId=' + locationid,
         headers: {
           "Content-Type": "application/json",
@@ -297,7 +299,7 @@ function sendCommand(cmd, deviceid, locationid, callback) {
       };
 
       request(options, function (err, response, jsondata) {
-        if (err) {
+        if(err) {
           adapter.log.error('Could not send command.');
           adapter.setState('info.connection', false, true);
         } else {
@@ -313,15 +315,15 @@ function sendCommand(cmd, deviceid, locationid, callback) {
 // an event was triggered
 function triggeredEvent(id, state, callback) {
 
-  var deviceid = id.split('.')[3];
-  var cmd = id.split('.')[5];
+  let deviceid = id.split('.')[3];
+  let cmd = id.split('.')[5];
 
   // ok, we have the device id, get the location id
   adapter.getState('devices.' + deviceid + '.locationid', function(err, state) {
     if(err) adapter.log.error('Could not get location ID for device ' + deviceid);
 
     if(state) {
-      var locationid = state.val;
+      let locationid = state.val;
       sendCommand(cmd, deviceid, locationid, function(err) {
         if(err) adapter.log.error('Could not send command ' + command + ' for device id ' + deviceid);
       });
@@ -339,15 +341,15 @@ function getConnectionInfo(callback) {
     if (state.val === true) {
       adapter.getState('info.token', function (err, state) {
         if (err) adapter.log.error(err.message);
-        var token = state.val;
+        let token = state.val;
 
         adapter.getState('info.user_id', function (err, state) {
           if (err) adapter.log.error(err.message);
-          var user_id = state.val;
+          let user_id = state.val;
 
           adapter.getState('info.refresh_token', function (err, state) {
             if (err) adapter.log.error(err.message);
-            var refresh_token = state.val;
+            let refresh_token = state.val;
 
             callback(false, token, user_id, refresh_token);
           });
@@ -361,7 +363,7 @@ function getConnectionInfo(callback) {
 function retrieveLocations(callback) {
   getConnectionInfo(function (err, token, user_id, refresh_token) {
     // setup the request
-    var options = {
+    let options = {
       url: 'https://sg-api.dss.husqvarnagroup.net/sg-1/locations/?user_id=' + user_id,
       headers: {
         "Content-Type": "application/json",
@@ -390,16 +392,16 @@ function updateDBLocations(jsondata, callback) {
   });
 
   // update locations in the database
-  for(var ckey in jsondata) {
+  for(let ckey in jsondata) {
     if (jsondata.hasOwnProperty(ckey) && ckey === 'locations') {
-      var locations = jsondata[ckey];
+      let locations = jsondata[ckey];
 
       // go through all locations
-      for(var i=0;i<locations.length;i++) {
-        var curlocation = locations[i];
+      for(let i=0;i<locations.length;i++) {
+        let curlocation = locations[i];
 
         // retrieve location id
-        var locid = curlocation['id'];
+        let locid = curlocation['id'];
 
         if(locid) {
           // maybe it is a valid location id?
@@ -409,7 +411,7 @@ function updateDBLocations(jsondata, callback) {
           });
 
           // go through all properties in locations
-          for(var lkey in curlocation) {
+          for(let lkey in curlocation) {
             if (curlocation.hasOwnProperty(lkey)) {
               switch(lkey) {
                 case 'name':
@@ -433,7 +435,7 @@ function updateDBLocations(jsondata, callback) {
                   break;
                 case 'geo_position':
                 // go through geoposition
-                  for(var cgeo in curlocation[lkey]) {
+                  for(let geo in curlocation[lkey]) {
 
                     adapter.createState('locations', locid, 'geo_position.' + cgeo, {
                       name: 'geo_position.' + cgeo,
@@ -465,8 +467,8 @@ function retrieveAllDevices(callback) {
     // go through all location ids and retrieve device information
     adapter.getChannelsOf('locations', function (err, channels) {
 
-      for (var i=0;i<channels.length;i++) {
-        var location_id = channels[0].common.name;
+      for (let i=0;i<channels.length;i++) {
+        let location_id = channels[0].common.name;
         retrieveDevicesFromLocation(token, location_id, function (err) {
           if (err) {
             adapter.log.error('Could not get device from location ' + location_id);
@@ -483,7 +485,7 @@ function retrieveAllDevices(callback) {
 function retrieveDevicesFromLocation(token, location_id, callback) {
 
   // setup request
-  var options = {
+  let options = {
     url: 'https://sg-api.dss.husqvarnagroup.net/sg-1/devices?locationId=' + location_id,
     headers: {
       "Content-Type": "application/json",
@@ -507,8 +509,8 @@ function retrieveDevicesFromLocation(token, location_id, callback) {
 // update database devices
 function updateDBDevices(location_id, jsondata, callback) {
   // go through all devices
-  for(var i=0;i<jsondata.devices.length;i++) {
-    var cdev = jsondata.devices[i];
+  for(let i=0;i<jsondata.devices.length;i++) {
+    let cdev = jsondata.devices[i];
 
     if(cdev.id) {
       // there seems to be a valid device id
@@ -543,7 +545,7 @@ function updateDBDevices(location_id, jsondata, callback) {
               // create command states
 
               // first iterate over the commands
-              for (var curcmd in mower_commands_arr) {
+              for (let curcmd in mower_commands_arr) {
                 if (!mower_commands_arr.hasOwnProperty(curcmd)) continue;
 
                 // create activator state
@@ -559,7 +561,7 @@ function updateDBDevices(location_id, jsondata, callback) {
                 }, false, true);
 
                 // then iterate over the parameters
-                for (var cparam in mower_commands_arr[curcmd]) {
+                for (let cparam in mower_commands_arr[curcmd]) {
 
                   // create parameter
                   setStateEx('devices.' + cdev.id + '.commands.' + curcmd + '.' + cparam, {
@@ -595,18 +597,18 @@ function syncConfig() {
 // write JSON object into DB
 function JSONtoDB(json, root_id) {
 
-  for (var citem in json) {
+  for (let citem in json) {
     if (!json.hasOwnProperty(citem)) continue;
 
     if (Array.isArray(json[citem])) {
-      for (var i = 0; i < json[citem].length; i++) {
-        var curelem = json[citem][i];
+      for (let i = 0; i < json[citem].length; i++) {
+        let curelem = json[citem][i];
 
         // check if curelem is an object
         if(typeof curelem === 'object') {
           JSONtoDB(curelem, root_id + '.' + citem + '.' + i);
         } else {
-          var d = {};
+          let d = {};
           d[i] = curelem;
           JSONtoDB(d, root_id + '.' + citem);
         }
@@ -650,14 +652,14 @@ function JSONtoDB(json, root_id) {
 
 // setStateEx
 function setStateEx(id, common, val, ack, callback) {
-  var a = {
+  let a = {
     type: 'state',
     native: {}
   };
 
-  var common_full = Object.assign({}, a, common);
+  let common_full = Object.assign({}, a, common);
 
-  var cfunc = function (err) {
+  let cfunc = function (err) {
     adapter.setState(id, val, ack, function(err) {
       if(err) adapter.log.error('Could not create extende state id:' + id + ', val:' + val);
     });
