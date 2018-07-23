@@ -205,7 +205,7 @@ function connect() {
       adapter.setState('info.token', '', true);
       adapter.setState('info.user_id', '', true);
       adapter.setState('info.refresh_token', '', true);
-      adapter.setState('info.connection', false, true);
+      adapter.setState('info.connection', false);
 
       adapter.log.error(err);
       adapter.log.info('Connection failure.');
@@ -218,7 +218,7 @@ function connect() {
         adapter.setState('info.token', '', true);
         adapter.setState('info.user_id', '', true);
         adapter.setState('info.refresh_token', '', true);
-        adapter.setState('info.connection', false, true);
+        adapter.setState('info.connection', false);
 
         adapter.log.debug('Delete auth tokens.');
         adapter.log.error('Connection works, but authorization failure (wrong password?)!');
@@ -227,7 +227,7 @@ function connect() {
         adapter.setState('info.token', body.sessions.token, true);
         adapter.setState('info.user_id', body.sessions.user_id, true);
         adapter.setState('info.refresh_token', body.sessions.refresh_token, true);
-        adapter.setState('info.connection', true, true);
+        adapter.setState('info.connection', true);
 
         adapter.log.debug('Saved auth tokens.');
         adapter.log.info('Connection successful.');
@@ -303,7 +303,7 @@ function sendCommand(cmd, deviceid, locationid, callback) {
           request(options, function (err, response, jsondata) {
             if(err) {
               adapter.log.error('Could not send command.');
-              adapter.setState('info.connection', false, true);
+              adapter.setState('info.connection', false);
             } else {
               adapter.log.info('Command send.');
 
@@ -383,7 +383,7 @@ function retrieveLocations(callback) {
 
     request(options, function (err, response, jsondata) {
       if (err) {
-        adapter.setState('info.connection', false, true);
+        adapter.setState('info.connection', false);
         adapter.log.error('Could not retrieve locations.');
       } else {
         adapter.log.info('Update DB locations.');
@@ -505,7 +505,7 @@ function retrieveDevicesFromLocation(token, location_id, callback) {
 
   request(options, function (err, response, jsondata) {
     if (err) {
-      adapter.setState('info.connection', false, true);
+      adapter.setState('info.connection', false);
       adapter.log.debug('Could not retrieve devices.');
     } else {
       adapter.log.info('Retrieve device data.');
