@@ -19,22 +19,18 @@ const request = require('request');
 // adapter will be restarted automatically every time as the configuration changed, e.g system.adapter.gardena.0
 const adapter = utils.Adapter('gardena');
 
-const wiffi_configs = require(__dirname + '/wiffi_config.json');
+// gardena commands
+const gardena_commands = require(__dirname + '/gardena_commands.json');
 
 const min_polling_interval = 60; // minimum polling interval in seconds
 
-const mower_commands_arr = {
-  'park_until_next_timer': {},
-  'park_until_further_notice': {},
-  'start_resume_schedule': {},
-  'start_override_timer': {
-    'duration': {
-      'val': 1440,
-      'type': 'number',
-      'desc': 'Ignore timer.'
-    }
-  },
-  'start_override_timer_duration': {}
+// gardena config
+const gardena_config = {
+  "baseURI": "https://sg-api.dss.husqvarnagroup.net",
+  "devicesURI": "/sg-1/devices",
+  "sessionsURI": "/sg-1/sessions",
+  "locationsURI": "/sg-1/locations",
+  "abilitiesURI": "/abilities"
 };
 
 let conn_timeout_id = null;
@@ -190,7 +186,7 @@ function connect() {
   let password = adapter.config.gardena_password;
 
   let options_connect = {
-    url: 'https://sg-api.dss.husqvarnagroup.net/sg-1/sessions',
+    url: gardena_config.baseURI + gardena_config.sessionsURI,
     headers: {
       "Content-Type": "application/json"
     },
@@ -272,11 +268,12 @@ function sendCommand(cmd, deviceid, locationid, callback) {
     // setup the request
     //'gardena.' + adapter.instance + '.devices.' + deviceid + '.commands.' + cmd
 
-    var json2send = {
+    let json2send = {
       "name": cmd,
       "parameters": {}
     };
 
+    // get values for parameters from the database
     adapter.getForeignStates(adapter.namespace + '.devices.' + deviceid + '.commands.' + cmd + '.*', function (err, objs) {
       for(let cobj in objs) {
         // ignore send state object
@@ -287,25 +284,36 @@ function sendCommand(cmd, deviceid, locationid, callback) {
         }
       }
 
-      // send the request
-      let options = {
-        url: 'https://sg-api.dss.husqvarnagroup.net/sg-1/devices/' + deviceid + '/abilities/mower/command?locationId=' + locationid,
-        headers: {
-          "Content-Type": "application/json",
-          "X-Session": token
-        },
-        method: "POST",
-        json: json2send
-      };
-
-      request(options, function (err, response, jsondata) {
-        if(err) {
-          adapter.log.error('Could not send command.');
-          adapter.setState('info.connection', false, true);
+      // get category of the gardena device
+      adapter.getState(adapter.namespace + '.devices.' + deviceid + '.category', function(err, category) {
+        if(err || !category) {
+          callback(err);
         } else {
-          adapter.log.info('Command send.');
+          // send the request
+          let options = {
+            url: gardena_config.baseURI + gardena_config.devicesURI + '/' + deviceid + gardena_config.abilitiesURI + '/' + category.val + '/command?locationId=' + locationid,
+            headers: {
+              "Content-Type": "application/json",
+              "X-Session": token
+            },
+            method: "POST",
+            json: json2send
+          };
+
+          request(options, function (err, response, jsondata) {
+            if(err) {
+              adapter.log.error('Could not send command.');
+              adapter.setState('info.connection', false, true);
+            } else {
+              adapter.log.info('Command send.');
+
+              // reset command switch to false
+              adapter.setState('devices.' + deviceid + '.commands.' + cmd + '.send', false, false);
+            }
+          });
         }
       });
+
     });
 
   callback(false);
@@ -364,7 +372,7 @@ function retrieveLocations(callback) {
   getConnectionInfo(function (err, token, user_id, refresh_token) {
     // setup the request
     let options = {
-      url: 'https://sg-api.dss.husqvarnagroup.net/sg-1/locations/?user_id=' + user_id,
+      url: gardena_config.baseURI + gardena_config.locationsURI + '/?user_id=' + user_id,
       headers: {
         "Content-Type": "application/json",
         "X-Session": token
@@ -435,7 +443,7 @@ function updateDBLocations(jsondata, callback) {
                   break;
                 case 'geo_position':
                 // go through geoposition
-                  for(let geo in curlocation[lkey]) {
+                  for(let cgeo in curlocation[lkey]) {
 
                     adapter.createState('locations', locid, 'geo_position.' + cgeo, {
                       name: 'geo_position.' + cgeo,
@@ -486,7 +494,7 @@ function retrieveDevicesFromLocation(token, location_id, callback) {
 
   // setup request
   let options = {
-    url: 'https://sg-api.dss.husqvarnagroup.net/sg-1/devices?locationId=' + location_id,
+    url: gardena_config.baseURI + gardena_config.devicesURI + '/?locationId=' + location_id,
     headers: {
       "Content-Type": "application/json",
       "X-Session": token
@@ -536,52 +544,63 @@ function updateDBDevices(location_id, jsondata, callback) {
           }
         }, location_id, true);
 
-      // set commands
+      // create set commands
       // get category
-      adapter.getState('devices.' + cdev.id + '.category', function (err, state) {
-        if(state) {
-          switch(state.val) {
-            case 'mower':
-              // create command states
+      adapter.getState('devices.' + cdev.id + '.category', function (err, category) {
+        if(category && category.hasOwnProperty('val') && category.val) {
+          // find category in commands
+          let g_cmds = gardena_commands;
+          let cat;
 
-              // first iterate over the commands
-              for (let curcmd in mower_commands_arr) {
-                if (!mower_commands_arr.hasOwnProperty(curcmd)) continue;
+          // go through all known commands and check if we already know the category
+          for(let j = 0;j<g_cmds.length;j++) {
+            if(g_cmds[j].hasOwnProperty('category') && g_cmds[j].category === category.val) {
+              cat = g_cmds[j];
+              break;
+            }
+          }
 
-                // create activator state
-                setStateEx('devices.' + cdev.id + '.commands.' + curcmd + '.send', {
-                  common: {
-                    name: 'send',
-                    role: 'gardena.command_trigger',
-                    desc: 'Send command.',
-                    write: true,
-                    read: true,
-                    type: "boolean"
-                  }
-                }, false, true);
+          // we know commands for the category
+          if(cat && cat.hasOwnProperty('commands') && cat.commands.length > 0) {
+            // go through all commands
+            for(let k=0;k<cat.commands.length;k++) {
+              let cmd = cat.commands[k];
 
-                // then iterate over the parameters
-                for (let cparam in mower_commands_arr[curcmd]) {
+              // create activator state
+              setStateEx('devices.' + cdev.id + '.commands.' + cmd.command + '.send', {
+                common: {
+                  name: 'send',
+                  role: 'gardena.command_trigger',
+                  desc: 'Send command.',
+                  write: true,
+                  read: true,
+                  def: false,
+                  type: "boolean"
+                }
+              }, false, true);
+
+              // then iterate over the parameters
+              if(cmd.hasOwnProperty('parameters') && cmd.parameters.length > 0) {
+                for(let l=0;l<cmd.parameters.length;l++) {
+                  let param = cmd.parameters[l];
 
                   // create parameter
-                  setStateEx('devices.' + cdev.id + '.commands.' + curcmd + '.' + cparam, {
+                  setStateEx('devices.' + cdev.id + '.commands.' + cmd.command + '.' + param.name, {
                     common: {
-                      name: cparam,
+                      name: param.name,
                       role: 'gardena.command_parameter',
-                      desc: mower_commands_arr[curcmd][cparam].desc,
+                      desc: param.desc,
                       write: true,
                       read: true,
-                      type: mower_commands_arr[curcmd][cparam].type
+                      type: param.type
                     }
-                  }, mower_commands_arr[curcmd][cparam].val, true);
-
+                  }, param.val, true);
                 }
               }
-            break;
+            }
           }
         }
       });
-
     } else {
       adapter.log.error('Invalid device id!');
     }

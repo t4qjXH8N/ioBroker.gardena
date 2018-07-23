@@ -1,8 +1,12 @@
 {
     "common": {
         "name":                     "gardena",
-        "version":                  "1.0.1",
+        "version":                  "1.1.0",
         "news": {
+          "1.1.0": {
+            "en": "New gardena devices can be added more easily.",
+            "de": "Neue Gardena-Geräte können leichter eingebunden werden."
+          },
           "1.0.1": {
             "en": "Readded travis/appveyor testing.",
             "de": "Travis/appveyor wieder hinzugefügt."
