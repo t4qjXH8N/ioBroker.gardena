@@ -251,14 +251,16 @@ function poll(callback) {
       retrieveAllDevices(function (err) {
         if(err) {
           adapter.log.error('An error occured during polling devices.');
+
+          if(callback) callback(err);
         } else {
           adapter.log.info('Polling successful!');
+
+          if(callback) callback(false);
         }
       });
     }
   });
-
-  if(callback) callback(false);
 }
 
 // send a command to the gardena device
@@ -304,19 +306,20 @@ function sendCommand(cmd, deviceid, locationid, callback) {
             if(err) {
               adapter.log.error('Could not send command.');
               adapter.setState('info.connection', false);
+
+              callback(err);
             } else {
               adapter.log.info('Command send.');
 
               // reset command switch to false
               adapter.setState('devices.' + deviceid + '.commands.' + cmd + '.send', false, false);
+              callback(false);
             }
           });
         }
       });
 
     });
-
-  callback(false);
   });
 }
 
@@ -328,17 +331,20 @@ function triggeredEvent(id, state, callback) {
 
   // ok, we have the device id, get the location id
   adapter.getState('devices.' + deviceid + '.locationid', function(err, state) {
-    if(err) adapter.log.error('Could not get location ID for device ' + deviceid);
+    if(err) {
+      adapter.log.error('Could not get location ID for device ' + deviceid);
 
-    if(state) {
-      let locationid = state.val;
-      sendCommand(cmd, deviceid, locationid, function(err) {
-        if(err) adapter.log.error('Could not send command ' + command + ' for device id ' + deviceid);
-      });
+      callback(err);
+    } else {
+      if(state) {
+        let locationid = state.val;
+        sendCommand(cmd, deviceid, locationid, function(err) {
+          if(err) adapter.log.error('Could not send command ' + command + ' for device id ' + deviceid);
+        });
+      }
+      callback(false);
     }
   });
-
-  callback(false);
 }
 
 // retrieve locally saved connection params
@@ -356,10 +362,15 @@ function getConnectionInfo(callback) {
           let user_id = state.val;
 
           adapter.getState('info.refresh_token', function (err, state) {
-            if (err) adapter.log.error(err.message);
-            let refresh_token = state.val;
+            if (err) {
+              adapter.log.error(err.message);
 
-            callback(false, token, user_id, refresh_token);
+              callback(err);
+            } else {
+              let refresh_token = state.val;
+
+              callback(false, token, user_id, refresh_token);
+            }
           });
         });
       });
@@ -385,9 +396,17 @@ function retrieveLocations(callback) {
       if (err) {
         adapter.setState('info.connection', false);
         adapter.log.error('Could not retrieve locations.');
+
+        callback(err);
       } else {
         adapter.log.info('Update DB locations.');
-        updateDBLocations(jsondata, callback);
+        updateDBLocations(jsondata, function (err) {
+          if(err) {
+            callback(err)
+          } else {
+            callback(false)
+          }
+        });
       }
     });
   });
@@ -480,9 +499,10 @@ function retrieveAllDevices(callback) {
         retrieveDevicesFromLocation(token, location_id, function (err) {
           if (err) {
             adapter.log.error('Could not get device from location ' + location_id);
+            callback(err);
+          } else {
+            callback(false);
           }
-
-          callback(false);
         });
       }
     });
@@ -517,24 +537,25 @@ function retrieveDevicesFromLocation(token, location_id, callback) {
 // update database devices
 function updateDBDevices(location_id, jsondata, callback) {
   // go through all devices
-  for(let i=0;i<jsondata.devices.length;i++) {
-    let cdev = jsondata.devices[i];
+  if(jsondata && jsondata.devices) {
+    for(let i=0;i<jsondata.devices.length;i++) {
+      let cdev = jsondata.devices[i];
 
-    if(cdev.id) {
-      // there seems to be a valid device id
-      adapter.setObject('devices.' + cdev.id, {
-        type: "device",
-        common: {
-          name: cdev.category + '_' + cdev.name,
-          role: "device"
-        },
-        native: {}
-      });
+      if(cdev.id) {
+        // there seems to be a valid device id
+        adapter.setObject('devices.' + cdev.id, {
+          type: "device",
+          common: {
+            name: cdev.category + '_' + cdev.name,
+            role: "device"
+          },
+          native: {}
+        });
 
-      JSONtoDB(cdev, 'devices.' + cdev.id);
+        JSONtoDB(cdev, 'devices.' + cdev.id);
 
-      // save location id (redundant, but simpler)
-      setStateEx('devices.' + cdev.id + '.locationid', {
+        // save location id (redundant, but simpler)
+        setStateEx('devices.' + cdev.id + '.locationid', {
           common: {
             name: "locationid",
             role: "gardena.locationid",
@@ -544,17 +565,16 @@ function updateDBDevices(location_id, jsondata, callback) {
           }
         }, location_id, true);
 
-      // create set commands
-      // get category
-      adapter.getState('devices.' + cdev.id + '.category', function (err, category) {
-        if(category && category.hasOwnProperty('val') && category.val) {
+        // create set commands
+        // get category
+        if(cdev.hasOwnProperty('category') && cdev.category) {
           // find category in commands
           let g_cmds = gardena_commands;
           let cat;
 
           // go through all known commands and check if we already know the category
           for(let j = 0;j<g_cmds.length;j++) {
-            if(g_cmds[j].hasOwnProperty('category') && g_cmds[j].category === category.val) {
+            if(g_cmds[j].hasOwnProperty('category') && g_cmds[j].category === cdev.category) {
               cat = g_cmds[j];
               break;
             }
@@ -600,12 +620,15 @@ function updateDBDevices(location_id, jsondata, callback) {
             }
           }
         }
-      });
-    } else {
-      adapter.log.error('Invalid device id!');
+      } else {
+        adapter.log.error('Invalid device id!');
+      }
     }
+    callback(false);
+  } else {
+    adapter.log.warn('Received JSON is empty.');
+    callback(true);
   }
-  callback(false);
 }
 
 // synchronize config
