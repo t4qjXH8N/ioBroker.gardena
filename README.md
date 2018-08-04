@@ -41,6 +41,9 @@ X-Rate-Limit-Reset: 1)
 Just install the adapter in the iobroker admin interface or fetch it from Github.
 
 ## Changelog
+# 1.2.0 (05-Aug-2018)
+- support for Gardena [smart irrigation control](https://www.gardena.com/int/products/smart/smart-system/pim94995109/967669901/)
+
 # 1.1.0 (23-Jul-2019)
 - new devices can be added more easily 
 

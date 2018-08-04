@@ -14,6 +14,8 @@ const utils =    require(__dirname + '/lib/utils'); // Get common adapter utils
 // for communication
 const request = require('request');
 
+const deepmerge = require('deepmerge');
+
 // you have to call the adapter function and pass a options object
 // name has to be set and has to be equal to adapters folder name and main file name excluding extension
 // adapter will be restarted automatically every time as the configuration changed, e.g system.adapter.gardena.0
@@ -263,18 +265,184 @@ function poll(callback) {
   });
 }
 
+// create json that we have to send to the device
+function getJSONToSend(id, cmd, deviceid, callback) {
+
+  function getCmdNamespace(id) {
+    let cmd_namespace = '';
+    for(let i=0;i<id.split('.').length - 1;i++) {
+      cmd_namespace += id.split('.')[i];
+      if(i < (id.split('.').length - 2)) cmd_namespace += '.';
+    }
+    return cmd_namespace;
+  }
+
+  function getDeviceNamespace(id, deviceid) {
+    let dev_namespace = '';
+    let dev_id;
+
+    for(let i=0;i<id.split('.').length;i++) {
+      if(id.split('.')[i] === deviceid) {
+        dev_id = i;
+        break;
+      }
+    }
+
+    for(let i=0;i<dev_id+1;i++) {
+      dev_namespace += id.split('.')[i];
+      if(i < dev_id) dev_namespace += '.';
+    }
+    return dev_namespace;
+  }
+
+  function removeNamespace(id) {
+    let rest = '';
+    // remove namespace
+    for(let i = 5;i< id.split('.').length; i++) {
+      rest += id.split('.')[i];
+      if (i < id.split('.').length - 1) rest += '.';
+    }
+    return rest;
+  }
+
+  function removeFirstElement(id) {
+    let rest = '';
+    for (let i = 1; i < id.split('.').length; i++) {
+      rest += id.split('.')[i];
+      if (i < id.split('.').length - 1) rest += '.';
+    }
+
+    return rest;
+  }
+
+  function removeLastElement(id) {
+    let rest = '';
+    for(let i=0;i<id.split('.').length - 1;i++) {
+      rest += id.split('.')[i];
+      if (i < id.split('.').length - 2) rest += '.';
+    }
+
+    return rest;
+  }
+
+  function paramToDict(id, cobj) {
+    // get first element of the id
+
+    if (id.split('.').length === 1) {
+      let dict = {};
+      dict[id] = cobj.val;
+      return dict;
+    } else {
+      let dict = {};
+
+      dict[id.split('.')[0]] = paramToDict(removeFirstElement(id), cobj);
+      return dict;
+    }
+  }
+
+  let cmd_namespace = getCmdNamespace(id);
+  let dev_namespace = removeNamespace(id);
+
+  // get values for parameters from the database
+  adapter.getForeignStates(cmd_namespace + '.*', function (err, objs) {
+    let json2send = {};
+    let rest;
+
+    // add modified activator state to objs, so that paramToDict works
+    let dict = {};
+    dict[removeLastElement(id) + '.name'] = {"val": cmd};
+    objs = Object.assign({}, objs, dict);
+
+    // first find the activator state
+    for(let cobj in objs) {
+      if(cobj.split('.')[cobj.split('.').length - 1] !== 'send') {
+        // no activator state
+        rest = removeFirstElement(removeNamespace(cobj, cmd_namespace));
+
+        // merge parameters into json2send
+        let jo = paramToDict(rest, objs[cobj]);
+        json2send = deepmerge(json2send, jo);
+      }
+    }
+
+    callback(json2send);
+  });
+}
+
+function getRequestOptionsToSend(id, cmd, deviceid, locationid, callback) {
+  // get category of the gardena device
+  adapter.getState(adapter.namespace + '.devices.' + deviceid + '.category', function(err, category) {
+    if (err || !category) {
+      callback(err);
+    } else {
+      getJSONToSend(id, cmd, deviceid, function (json2send) {
+        // get URI
+        let g_cmds = gardena_commands[category.val];
+
+        if(!g_cmds.hasOwnProperty('request') || !g_cmds.request == Object) {
+          adapter.log.error('Missing request in gardena_commands.json');
+          return
+        }
+        if(!g_cmds.request.hasOwnProperty('uri') || !g_cmds.request.uri) {
+          adapter.log.error('Missing "uri" in request in gardena_commands.json');
+          return
+        }
+        if(!g_cmds.request.hasOwnProperty('method') || !g_cmds.request.method) {
+          adapter.log.error('Missing "method" in request in gardena_commands.json');
+          return
+        }
+
+        let uri = gardena_config.baseURI + g_cmds.request.uri.replace('[deviceID]', deviceid).replace('[locationID]', locationid).replace('[cmd]', cmd);
+        let method = g_cmds.request.method;
+
+        getConnectionInfo(function (err, token, user_id, refresh_token) {
+          let options = {
+            url: uri,
+            headers: {
+              "Content-Type": "application/json",
+              "X-Session": token
+            },
+            method: method,
+            json: json2send
+          };
+
+          callback(options);
+        })
+
+      });
+    }
+  });
+}
+
 // send a command to the gardena device
-function sendCommand(cmd, deviceid, locationid, callback) {
+function sendCommand(id, cmd, deviceid, locationid, callback) {
 
-  getConnectionInfo(function (err, token, user_id, refresh_token) {
-    // setup the request
-    //'gardena.' + adapter.instance + '.devices.' + deviceid + '.commands.' + cmd
+  getRequestOptionsToSend(id, cmd, deviceid, locationid, function(options) {
+    let a = options;
 
+    request(options, function (err, response, jsondata) {
+      if (err) {
+        adapter.log.error('Could not send command.');
+        adapter.setState('info.connection', false);
+
+        callback(err);
+      } else {
+        adapter.log.info('Command send.');
+
+        // reset command switch to false
+        adapter.setState('devices.' + deviceid + '.commands.' + cmd + '.send', false, false);
+        callback(false);
+      }
+    });
+  });
+
+    /*
     let json2send = {
       "name": cmd,
       "parameters": {}
     };
-
+    */
+/*
     // get values for parameters from the database
     adapter.getForeignStates(adapter.namespace + '.devices.' + deviceid + '.commands.' + cmd + '.*', function (err, objs) {
       for(let cobj in objs) {
@@ -320,14 +488,16 @@ function sendCommand(cmd, deviceid, locationid, callback) {
       });
 
     });
+
   });
+  */
 }
 
 // an event was triggered
 function triggeredEvent(id, state, callback) {
 
   let deviceid = id.split('.')[3];
-  let cmd = id.split('.')[5];
+  let cmd = id.split('.')[id.split('.').length - 2];
 
   // ok, we have the device id, get the location id
   adapter.getState('devices.' + deviceid + '.locationid', function(err, state) {
@@ -338,11 +508,17 @@ function triggeredEvent(id, state, callback) {
     } else {
       if(state) {
         let locationid = state.val;
-        sendCommand(cmd, deviceid, locationid, function(err) {
-          if(err) adapter.log.error('Could not send command ' + command + ' for device id ' + deviceid);
+        sendCommand(id, cmd, deviceid, locationid, function(err) {
+          if(err) {
+            adapter.log.error('Could not send command ' + command + ' for device id ' + deviceid);
+            callback(true);
+          } else {
+            callback(false);
+          }
         });
+      } else {
+        callback(false);
       }
-      callback(false);
     }
   });
 }
@@ -534,6 +710,103 @@ function retrieveDevicesFromLocation(token, location_id, callback) {
   });
 }
 
+function setCommands_to_DB(cdev, prefix, cmd, callback) {
+
+  // check type of command
+  // 1. a property or parameter?
+  // 2. activator state
+  function getCmdType(cmd) {
+    if (cmd.hasOwnProperty('name') && cmd.name && cmd.hasOwnProperty('type') && cmd.type && cmd.hasOwnProperty('val') && cmd.val) return 1;
+    if (cmd.hasOwnProperty('cmd_desc') && cmd.cmd_desc) return 2;
+
+    return -1;
+  }
+
+  // go through all commands
+  for (let i=0;i<cmd.length;i++) {
+    switch (getCmdType(cmd[i])) {
+      case 1:
+        // oh, we have a property or parameter here
+        // create parameter
+        let desc = ((cmd[i].hasOwnProperty('desc') && cmd[i].desc) ? cmd[i].desc : 'description');
+
+        setStateEx(prefix + '.' + cmd[i].name, {
+          common: {
+            name: cmd[i].name,
+            role: 'gardena.command_parameter',
+            desc: desc,
+            write: true,
+            read: true,
+            type: cmd[i].type
+          }
+        }, cmd[i].val, true);
+
+        break;
+      case 2:
+        // create activator state
+        setStateEx(prefix + '.' + cmd[i].cmd_desc + '.send', {
+          common: {
+            name: 'send ' + cmd[i].cmd_desc,
+            role: 'gardena.command_trigger',
+            desc: 'Send command ' + cmd[i].cmd_desc + '.',
+            write: true,
+            read: true,
+            def: false,
+            type: "boolean"
+          }
+        }, false, true);
+        break;
+    }
+
+    // are there any other keys than "cmd_desc" or type that contain arrays?
+    for (let citem in cmd[i]) {
+      if (Array.isArray(cmd[i][citem]) && cmd[i][citem].length > 0) {
+        if(cmd[i].hasOwnProperty('cmd_desc') && cmd[i].cmd_desc) {
+          setCommands_to_DB(cdev, prefix + '.' + cmd[i].cmd_desc + '.' + citem, cmd[i][citem], callback)
+        } else {
+          setCommands_to_DB(cdev, prefix + '.' + citem, cmd[i][citem], callback)
+        }
+      }
+    }
+  }
+}
+
+// create set commands for device id (if not yet done)
+function createSetCommands(cdev, callback) {
+  // is there a category present?
+  if(!cdev.hasOwnProperty('category') || !cdev.category) {
+    callback(false);
+    return;
+  }
+
+  // is category known by gardena_commands.json?
+  let g_cmds = gardena_commands;
+  if(!g_cmds.hasOwnProperty(cdev.category) || !g_cmds[cdev.category]) {
+    callback(false);
+    return;
+  }
+
+  // are there any commands?
+  if(!g_cmds[cdev.category].hasOwnProperty('commands') || !g_cmds[cdev.category].commands) {
+    callback(false);
+    return;
+  }
+
+  if(!Array.isArray(g_cmds[cdev.category].commands) || !(g_cmds[cdev.category].commands.length > 0)) {
+    callback(false);
+    return;
+  }
+
+  // go recursively through commands array
+  setCommands_to_DB(cdev, 'devices.' + cdev.id + '.commands', g_cmds[cdev.category].commands, function (err) {
+    if(err) {
+      callback(err);
+    } else {
+      callback(false);
+    }
+  });
+}
+
 // update database devices
 function updateDBDevices(location_id, jsondata, callback) {
   // go through all devices
@@ -565,69 +838,17 @@ function updateDBDevices(location_id, jsondata, callback) {
           }
         }, location_id, true);
 
-        // create set commands
-        // get category
-        if(cdev.hasOwnProperty('category') && cdev.category) {
-          // find category in commands
-          let g_cmds = gardena_commands;
-          let cat;
+        createSetCommands(cdev, function(err) {
+          if(err) adapter.log.error('Error creating set commands for device ' + cdev.id)
+        });
 
-          // go through all known commands and check if we already know the category
-          for(let j = 0;j<g_cmds.length;j++) {
-            if(g_cmds[j].hasOwnProperty('category') && g_cmds[j].category === cdev.category) {
-              cat = g_cmds[j];
-              break;
-            }
-          }
-
-          // we know commands for the category
-          if(cat && cat.hasOwnProperty('commands') && cat.commands.length > 0) {
-            // go through all commands
-            for(let k=0;k<cat.commands.length;k++) {
-              let cmd = cat.commands[k];
-
-              // create activator state
-              setStateEx('devices.' + cdev.id + '.commands.' + cmd.command + '.send', {
-                common: {
-                  name: 'send',
-                  role: 'gardena.command_trigger',
-                  desc: 'Send command.',
-                  write: true,
-                  read: true,
-                  def: false,
-                  type: "boolean"
-                }
-              }, false, true);
-
-              // then iterate over the parameters
-              if(cmd.hasOwnProperty('parameters') && cmd.parameters.length > 0) {
-                for(let l=0;l<cmd.parameters.length;l++) {
-                  let param = cmd.parameters[l];
-
-                  // create parameter
-                  setStateEx('devices.' + cdev.id + '.commands.' + cmd.command + '.' + param.name, {
-                    common: {
-                      name: param.name,
-                      role: 'gardena.command_parameter',
-                      desc: param.desc,
-                      write: true,
-                      read: true,
-                      type: param.type
-                    }
-                  }, param.val, true);
-                }
-              }
-            }
-          }
-        }
       } else {
-        adapter.log.error('Invalid device id!');
+        adapter.log.debug('Invalid device id!');
       }
     }
     callback(false);
   } else {
-    adapter.log.warn('Received JSON is empty.');
-    callback(true);
+    callback('Received JSON is empty.');
   }
 }
 

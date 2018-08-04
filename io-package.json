@@ -1,8 +1,12 @@
 {
     "common": {
         "name":                     "gardena",
-        "version":                  "1.1.0",
+        "version":                  "1.2.0",
         "news": {
+          "1.2.0": {
+            "en": "Support for Smart Irrigation Control.",
+            "de": "Smarte Bewässerungssteuerung wird unterstützt.."
+          },
           "1.1.0": {
             "en": "New gardena devices can be added more easily.",
             "de": "Neue Gardena-Geräte können leichter eingebunden werden."
