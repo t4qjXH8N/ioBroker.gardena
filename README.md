@@ -1,5 +1,5 @@
 ![Logo](admin/gardena.png)
-# ioBroker.gardena
+ioBroker gardena adapter
 =================
 [![NPM version](http://img.shields.io/npm/v/iobroker.gardena.svg)](https://www.npmjs.com/package/iobroker.gardena)
 [![Downloads](https://img.shields.io/npm/dm/iobroker.gardena.svg)](https://www.npmjs.com/package/iobroker.gardena)
