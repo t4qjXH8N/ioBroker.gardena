@@ -435,62 +435,6 @@ function sendCommand(id, cmd, deviceid, locationid, callback) {
       }
     });
   });
-
-    /*
-    let json2send = {
-      "name": cmd,
-      "parameters": {}
-    };
-    */
-/*
-    // get values for parameters from the database
-    adapter.getForeignStates(adapter.namespace + '.devices.' + deviceid + '.commands.' + cmd + '.*', function (err, objs) {
-      for(let cobj in objs) {
-        // ignore send state object
-        if(cobj.split('.')[cobj.split('.').length-1] !== 'send') {
-          let param = cobj.split('.')[cobj.split('.').length-1];
-
-          json2send['parameters'][param] = objs[cobj].val;
-        }
-      }
-
-      // get category of the gardena device
-      adapter.getState(adapter.namespace + '.devices.' + deviceid + '.category', function(err, category) {
-        if(err || !category) {
-          callback(err);
-        } else {
-          // send the request
-          let options = {
-            url: gardena_config.baseURI + gardena_config.devicesURI + '/' + deviceid + gardena_config.abilitiesURI + '/' + category.val + '/command?locationId=' + locationid,
-            headers: {
-              "Content-Type": "application/json",
-              "X-Session": token
-            },
-            method: "POST",
-            json: json2send
-          };
-
-          request(options, function (err, response, jsondata) {
-            if(err) {
-              adapter.log.error('Could not send command.');
-              adapter.setState('info.connection', false);
-
-              callback(err);
-            } else {
-              adapter.log.info('Command send.');
-
-              // reset command switch to false
-              adapter.setState('devices.' + deviceid + '.commands.' + cmd + '.send', false, false);
-              callback(false);
-            }
-          });
-        }
-      });
-
-    });
-
-  });
-  */
 }
 
 // an event was triggered
