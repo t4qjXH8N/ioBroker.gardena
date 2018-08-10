@@ -6,6 +6,9 @@ ioBroker gardena adapter
 
 [![NPM](https://nodei.co/npm/iobroker.gardena.png?downloads=true)](https://nodei.co/npm/iobroker.gardena/)
 
+[![Build Status](https://travis-ci.org/t4qjXH8N/ioBroker.gardena.svg?branch=master)](https://travis-ci.org/t4qjXH8N/ioBroker.gardena)
+[![Build status](https://ci.appveyor.com/api/projects/status/4gkr4kig83dhsa0h/branch/master?svg=true)](https://ci.appveyor.com/project/t4qjXH8N/iobroker-gardena/branch/master)
+
 This is an [ioBroker](https://github.com/ioBroker/ioBroker) Adapter supporting the Gardena Smart System web service.  
 
 ## Description
