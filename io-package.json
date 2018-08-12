@@ -53,7 +53,7 @@
         "platform":                 "Javascript/Node.js",
         "mode":                     "daemon",
         "icon":                     "gardena.png",
-        "enabled":                  true,
+        "enabled":                  false,
         "extIcon":                  "https://raw.githubusercontent.com/t4qjXH8N/ioBroker.gardena/master/admin/gardena.png",
         "keywords":                 ["gardena", "gardena smart system"],
         "readme":                   "https://github.com/t4qjXH8N/ioBroker.gardena/master/README.md",
@@ -61,6 +61,7 @@
         "type":                     "hardware",
         "restartAdapters":          [],
         "materialize":              true,
+        "messagebox":               true,
         "authors": [
             {
                 "name": "Christian Vorholt",

@@ -161,6 +161,39 @@ adapter.on('ready', function () {
   main();
 });
 
+
+// messages
+adapter.on('message', function (obj) {
+  let wait = false;
+  let credentials;
+
+  if (obj) {
+    switch (obj.command) {
+      case 'checkConnection':
+        credentials = JSON.parse(obj.message);
+
+        connect(credentials.gardena_username, credentials.gardena_password, function(err) {
+          if(!err) {
+            adapter.sendTo(obj.from, obj.command, true, obj.callback);
+          } else {
+            adapter.sendTo(obj.from, obj.command, false, obj.callback);
+          }
+        });
+        wait = true;
+        break;
+      default:
+        adapter.log.warn("Unknown command: " + obj.command);
+        break;
+    }
+  }
+  if (!wait && obj.callback) {
+    adapter.sendTo(obj.from, obj.command, obj.message, obj.callback);
+  }
+
+  return true;
+});
+
+
 // main function
 function main() {
 
@@ -180,12 +213,11 @@ function main() {
 }
 
 // connect to gardena smart cloud service
-function connect() {
+function connect(username, password, callback) {
   adapter.log.info("Connecting to Gardena Smart System Service ...");
 
-  // get username and password from database
-  let username = adapter.config.gardena_username;
-  let password = adapter.config.gardena_password;
+  if(!username) username = adapter.config.gardena_username;
+  if(!password) password = adapter.config.gardena_password;
 
   let options_connect = {
     url: gardena_config.baseURI + gardena_config.sessionsURI,
@@ -211,6 +243,7 @@ function connect() {
 
       adapter.log.error(err);
       adapter.log.info('Connection failure.');
+      if(callback) callback(err);
     } else {
       // connection successful
       adapter.log.debug('Response: ' + response.statusMessage);
@@ -234,6 +267,7 @@ function connect() {
         adapter.log.debug('Saved auth tokens.');
         adapter.log.info('Connection successful.');
       }
+      if(callback) callback(false);
     }
   });
 }
