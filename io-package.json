@@ -53,7 +53,8 @@
         "platform":                 "Javascript/Node.js",
         "mode":                     "daemon",
         "icon":                     "gardena.png",
-        "enabled":                  true,
+        "enabled":                  false,
+        "stopBeforeUpdate":         true,
         "extIcon":                  "https://raw.githubusercontent.com/t4qjXH8N/ioBroker.gardena/master/admin/gardena.png",
         "keywords":                 ["gardena", "gardena smart system"],
         "readme":                   "https://github.com/t4qjXH8N/ioBroker.gardena/master/README.md",
@@ -73,7 +74,25 @@
         "gardena_username": "me@me.com",
         "gardena_password": "secret",
         "gardena_reconnect_interval": "300",
-        "gardena_polling_interval": "600"
+        "gardena_polling_interval": "600",
+        "gardena_update_locations_counter": "30",
+        "gardena_datapoints": {},
+        "gardena_smart_datapoints": {}
     },
-    "objects": []
+    "objects": [],
+    "instanceObjects": [
+    {
+      "_id": "info.connection",
+      "type": "state",
+      "common": {
+        "name": "connected",
+        "desc": "Connected to Gardena Smart System Service?",
+        "type": "boolean",
+        "def": "false",
+        "read": "true",
+        "role": "value.info",
+        "write": "false"
+      }
+    }
+  ]
 }
