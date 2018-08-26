@@ -22,6 +22,8 @@
 <!-- you have to define 2 functions in the global scope: -->
 <script type="text/javascript">
   // the function loadSettings has to exist ...
+  let auth;
+
   function load(settings, onChange) {
     // example: select elements with id=key and class=value and insert value
     if (!settings) return;
@@ -62,6 +64,8 @@
   }
 
   $(function() {
+    let auth;
+
     $('#btn_check_connection').on('click', function () {
       let active = false;
       getIsAdapterAlive(function (isAlive) {
@@ -89,56 +93,133 @@
         });
       });
     });
+
+    $('.collapsible').collapsible();
+
+    $('a[href*="#tab-datapoints"]').on('click', function () {
+      getIsAdapterAlive(function (isAlive) {
+        let active = false;
+        if (isAlive || common.enabled) {
+          active = true;
+        }
+
+        if (!active) {
+          showMessage(_('Enable adapter first'), 'Warning', 'info');
+          return;
+        }
+
+        let credentials = {
+          "gardena_username": $('#gardena_username.value').val(),
+          "gardena_password": $('#gardena_password.value').val()
+        };
+
+        // connect to gardena cloud
+        sendTo('gardena.' + instance, 'connect', credentials, function (auth_data) {
+          if(!auth_data) return;
+          auth = auth_data;
+
+          sendTo('gardena.' + instance, 'retrieveLocations', auth, function (locations) {
+            if(locations) {
+              for(let i=0;i<locations.locations.length;i++) {
+                $('#datapoints-locations').append(
+                  '<li id="' + locations.locations[i].id + '">\n' +
+                  '    <div class="collapsible-header"><i class="material-icons">filter_drama</i>' + locations.locations[i].name +'</div>\n' +
+                  '    <div class="collapsible-body"><span></span></div>\n' +
+                  '</li>\n');
+
+                // now retrieve all devices
+                sendTo('gardena.' + instance, 'retrieveDevices', {"token": auth.token, "location_id": locations.locations[i].id}, function (devices) {
+                  if(devices) {
+                    for(let j=0;j<devices.devices.length;j++) {
+                      $('#' + locations.locations[i].id + ' div.collapsible-body span').append(
+                        '<li id="' + devices.devices[j].id + '">\n' +
+                        '    <div class="collapsible-header"><i class="material-icons">filter_drama</i>' + devices.devices[j].name +'</div>\n' +
+                        '    <div class="collapsible-body"><span></span></div>\n' +
+                        '</li>\n');
+
+                      let cdev = devices.devices[j];
+
+                      createDeviceDetails(locations.locations[i].id, devices.devices[j].id, cdev);
+                    }
+                  } else {
+                    alert('No connection');
+                  }
+                });
+              }
+            } else {
+              alert('No connection');
+            }
+          });
+        });
+      });
+      //alert('Huibuh');
+    });
   });
+
+  function createDeviceDetails(location_id, device_id, cdev) {
+
+
+  }
 </script>
 </head>
 <body>
-<!-- you have to put your config page in a div with id adapter-container -->
-<div class="m adapter-container">
-    <div class="row">
-        <!-- Forms are the standard way to receive user inputted data.
-     Learn more http://materializecss.com/forms.html-->
-        <div class="row">
-            <div class="input-field col s6">
-                <img src="gardena.png" class="logo">
-            </div>
-        </div>
-        <div class="row">
-            <div class="input-field col s12 m6 l4">
-                <input class="value" id="gardena_username" type="text">
-                <label for="gardena_username" class="translate">gardena_username</label>
-            </div>
-        </div>
-        <div class="row">
-            <div class="input-field col s12 m6 l4">
-                <input class="value" id="gardena_password" type="password">
-                <label for="gardena_password" class="translate">gardena_password</label>
-            </div>
-        </div>
-        <div class="row">
-            <div class="input-field col s12 m6 l4">
-                <input class="value" id="gardena_reconnect_interval" type="text">
-                <label for="gardena_reconnect_interval" class="translate">gardena_reconnect_interval</label>
-            </div>
-        </div>
-        <div class="row">
-            <div class="input-field col s12 m6 l4">
-                <input class="value" id="gardena_polling_interval" type="text">
-                <label for="gardena_polling_interval" class="translate">gardena_polling_interval</label>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col s12 m8 l4">
-                <a id="btn_check_connection" class="waves-effect waves-light btn translate">check_connection</a>
-            </div>
-        </div>
+    <!-- you have to put your config page in a div with id adapter-container -->
+    <div class="m adapter-container">
         <div class="row">
             <div class="col s12">
-                <p class="translate">on save adapter restarts with new config immediately</p>
+                <ul class="tabs">
+                    <li class="tab col s5"><a href="#tab-main"    class="translate active">main settings</a></li>
+                    <li class="tab col s5"><a href="#tab-datapoints" class="translate">datapoints</a></li>
+                </ul>
+            </div>
+            <div id="tab-main" class="col s12 page">
+                <!-- Forms are the standard way to receive user inputted data.
+                 Learn more http://materializecss.com/forms.html-->
+                <div class="row">
+                    <div class="input-field col s6">
+                        <img src="gardena.png" class="logo">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="input-field col s12 m6 l4">
+                        <input class="value" id="gardena_username" type="text">
+                        <label for="gardena_username" class="translate">gardena_username</label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="input-field col s12 m6 l4">
+                        <input class="value" id="gardena_password" type="password">
+                        <label for="gardena_password" class="translate">gardena_password</label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="input-field col s12 m6 l4">
+                        <input class="value" id="gardena_reconnect_interval" type="text">
+                        <label for="gardena_reconnect_interval" class="translate">gardena_reconnect_interval</label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="input-field col s12 m6 l4">
+                        <input class="value" id="gardena_polling_interval" type="text">
+                        <label for="gardena_polling_interval" class="translate">gardena_polling_interval</label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col s12 m8 l4">
+                        <a id="btn_check_connection" class="waves-effect waves-light btn translate">check_connection</a>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col s12">
+                        <p class="translate">on save adapter restarts with new config immediately</p>
+                    </div>
+                </div>
+            </div>
+            <div id="tab-datapoints" class="col s12 page">
+                <ul id="datapoints-locations" class="collapsible"></ul>
             </div>
         </div>
     </div>
-</div>
 </body>
 
 </html>
