@@ -38,6 +38,8 @@ let auth = {
 let conn_timeout_id = null; // timeout interval id
 let update_locations_counter = 30; // update locations in the database with this interval (saves ressources)
 
+const gardenaDBConnector = require(__dirname + '/lib/gardenaDBConnector');
+
 // triggered when the adapter is installed
 adapter.on('install', function () {
 });
@@ -121,7 +123,6 @@ adapter.on('ready', function () {
   main();
 });
 
-
 // messages
 adapter.on('message', function (obj) {
   let wait = false;
@@ -195,9 +196,10 @@ adapter.on('message', function (obj) {
   return true;
 });
 
-
 // main function
 function main() {
+  gardenaDBConnector.setAdapter(adapter);
+
   // The adapters config (in the instance object everything under the attribute "native") is accessible via
   // adapter.config:
   adapter.log.info('Starting gardena smart system adapter');
@@ -311,7 +313,7 @@ function poll(callback) {
     } else {
       adapter.log.info('Update locations in the database.');
       if(update_locations_counter === 30) {
-        updateDBLocations(locations);
+        gardenaDBConnector.updateDBLocations(locations);
         update_locations_counter = 0;
       }
       update_locations_counter += 1;
@@ -320,11 +322,10 @@ function poll(callback) {
       adapter.log.debug('Retrieved all locations, get all devices');
 
       // go through all location ids and retrieve device information
-      adapter.getStates('gardena.' + adapter.instance + '.location.*', function (err, states) {
+      adapter.getStates('gardena.' + adapter.instance + '.locations.*', function (err, states) {
 
         for(let cstate in states) {
-          // TODO: what do we get here?
-          let location_id = cstate[0].common.name;
+          let location_id = cstate.split('.')[3];
           retrieveDevicesFromLocation(auth.token, location_id, function (err, devices) {
             if (err) {
               adapter.log.error('Could not get device from location ' + location_id);
@@ -565,81 +566,6 @@ function retrieveLocations(token, user_id, callback) {
   });
 }
 
-// update locations in database
-function updateDBLocations(jsondata, callback) {
-  adapter.createDevice('locations', {
-    name: 'locations'
-  });
-
-  // update locations in the database
-  for(let ckey in jsondata) {
-    if (jsondata.hasOwnProperty(ckey) && ckey === 'locations') {
-      let locations = jsondata[ckey];
-
-      // go through all locations
-      for(let i=0;i<locations.length;i++) {
-        let curlocation = locations[i];
-
-        // retrieve location id
-        let locid = curlocation['id'];
-
-        if(locid) {
-          // maybe it is a valid location id?
-          adapter.createChannel('locations', locid, {
-            name: locid,
-            role: 'gardena.location'
-          });
-
-          // TODO: add correct iobroker states
-          // go through all properties in locations
-          for(let lkey in curlocation) {
-            if (curlocation.hasOwnProperty(lkey)) {
-              switch(lkey) {
-                case 'name':
-                  adapter.createState('locations', locid, lkey, {
-                    name: lkey,
-                    role: 'state',
-                    read: true,
-                    write: false,
-                    def: curlocation[lkey]
-                  });
-                  break;
-                case 'devices':
-                  // save the devices as comma delimited string
-                  adapter.createState('locations', locid, 'devices', {
-                    name: 'devices',
-                    def: curlocation[lkey].toString(),
-                    write: false,
-                    read: true,
-                    role: 'state'
-                  }, true);
-                  break;
-                case 'geo_position':
-                // go through geoposition
-                  for(let cgeo in curlocation[lkey]) {
-
-                    adapter.createState('locations', locid, 'geo_position.' + cgeo, {
-                      name: 'geo_position.' + cgeo,
-                      def: curlocation[lkey][cgeo],
-                      write: false,
-                      read: true,
-                      role: 'state'
-                    }, true);
-                  }
-                  break;
-              }
-            }
-          }
-        } else {
-          adapter.log.error('Invalid location id!');
-        }
-      }
-    }
-  }
-
-  if (callback) callback(false);
-}
-
 // get device device data for a location
 function retrieveDevicesFromLocation(token, location_id, callback) {
 
@@ -668,12 +594,25 @@ function retrieveDevicesFromLocation(token, location_id, callback) {
 
 // update specific gardena datapoints
 function updateDBDatapoints(devices, callback) {
+  let settings_dp = adapter.config.gardena_datapoints;
+
   if(adapter.config.smart_gardena_datapoints) {
 
 
   } else {
-    // devices should reflect the database structure
+    // go through all "whitelist" states
+    if (settings_dp) {
+      for (let cstate in settings_dp) {
+        let state = 'locations.' + cstate;
+        state = state.split('_');
+        state.pop();
+        state = state.join('.');
 
+        adapter.setState(state, settings_dp[cstate].value, false);
+
+      }
+
+    }
   }
 
   if (callback) callback(false);
@@ -779,69 +718,101 @@ function createSetCommands(cdev, callback) {
 // synchronize config
 function syncConfig() {
   // compare gardena datapoints with objects, anything changed?
-  let settings_dp = adapter.config.gardena_datapoints;
-
-  adapter.getStates('gardena.' + adapter.instance + '.devices.*', function(err, states) {
-    if(err) {
-     adapter.log.error('SyncConfig: Could not retrieve states!');
-    } else {
-      for(let cstate in states) {
-        if(settings_dp.hasOwnProperty(cstate)) {
-          // state already there
-          delete settings_dp[cstate];
-        } else {
-          // delete state
-          adapter.deleteState(cstate);
-        }
+  function stateInConfig(cstate) {
+    let states = adapter.config.gardena_datapoints;
+    for(let j=0;j<states.length;j++) {
+      if('gardena.' + adapter.instance + '.datapoints.' + states[j].name === cstate) {
+        return true;
       }
     }
+    return false;
+  }
 
-    // create missing states
-    if(settings_dp) {
-      // get some additional info for the states
-      for (let cstate in settings_dp) {
-        let new_state = 'locations.' + cstate;
-        new_state = new_state.split('_');
-        new_state.pop();
-        new_state = new_state.join('.');
+  function stateInDB(cstate, callback) {
+    adapter.getStates('gardena.' + adapter.instance + '.datapoints.*', function(err, states) {
+      callback(states.hasOwnProperty(cstate));
+    });
+  }
 
+  // create locations inside the datapoints structure
+  let settings_dp = adapter.config.gardena_datapoints;
+  let obj;
+  let created_locations = [];
+  for(let cdp in settings_dp) {
+    if(!created_locations.includes(cdp.split('_')[0])) {
+      // we have to create the location
+      obj = {
+        "_id": 'datapoints.' + cdp.split('_')[0],
+        "type": "group",
+        "common": {
+          "name": settings_dp[cdp].location,
+          "desc": "Location from Gardena Cloud."
+        },
+        "native": {}
+      };
+      adapter.setObjectNotExists('datapoints.' + cdp.split('_')[0], obj);
+      created_locations.push(cdp.split('_')[0]);
+    }
+  }
+
+  // create devices inside the datapoint structure
+  let common;
+  let created_devices = [];
+  for(let cdp in settings_dp) {
+    if(!created_devices.includes(cdp.split('_')[1])) {
+      // we have to create the location
+      common = {
+        "common": {
+          "name": settings_dp[cdp].device['name'],
+          "desc": "Location from Gardena Cloud."
+        }
+      };
+      adapter.createDevice('datapoints.' + cdp.split('_')[0] + '.' + cdp.split('_')[1], common);
+      created_devices.push(cdp.split('_')[1]);
+    }
+  }
+
+  // check if there are states that have to be removed
+  adapter.getStates('gardena.' + adapter.instance + '.datapoints.*', function(err, states) {
+    if (err) {
+      adapter.log.error('SyncConfig: Could not retrieve states!');
+    } else {
+      for (let cstate in states) {
+        if (!stateInConfig(cstate)) adapter.delObject(cstate);
+      }
+    }
+  });
+
+  // create missing states
+  for(let cdp in settings_dp) {
+    stateInDB('gardena.' + adapter.instance + '.datapoints.' + cdp.replace(/_/g, '.'), function(inDB) {
+      if(!inDB) {
+        // create states if they do not exis
         let common = {
-          "name": settings_dp[cstate].name,
-          "type": settings_dp[cstate].type
+          name: settings_dp[cdp].name,
+          type: settings_dp[cdp].type,
+          read: true
         };
 
-        if(settings_dp[cstate].hasOwnProperty('desc')) {
-          common = Object.assign({}, common, {"desc": "desc"})
+        if(settings_dp[cdp].hasOwnProperty('role')) {
+          common = Object.assign({}, common, {role: settings_dp[cdp].role})
+        }
+
+        if(settings_dp[cdp].hasOwnProperty('desc')) {
+          common = Object.assign({}, common, {desc: settings_dp[cdp].desc})
+        }
+
+        if(settings_dp[cdp].hasOwnProperty('writeable')) {
+          common = Object.assign({}, common, {writeable: settings_dp[cdp].writeable})
         }
 
         if(adapter.config.gardena_smart_datapoints) {
-          setStateEx(new_state, {
-            common: {
-              name: settings_dp[cstate].name,
-              role: settings_dp[cstate].role,
-              desc: settings_dp[cstate].desc,
-              write: settings_dp[cstate].writeable,
-              read: true,
-              type: settings_dp[cstate].type
-            }
-          }, settings_dp[cstate].value, true);
+          adapter.createState(cdp.split('_')[1], undefined, common.name, common);
         } else {
-          setStateEx(new_state, {"common": common}, settings_dp[cstate].value, true);
+
         }
+
       }
-
-    }
-
-  });
-}
-
-// setStateEx
-function setStateEx(id, common, val, ack, callback) {
-  adapter.setObjectNotExists(id, common, function (err) {
-      if (err) {
-        adapter.log.error('Could not create state id:' + id);
-      }
-  });
-
-  if(callback) callback(false);
+    });
+  }
 }

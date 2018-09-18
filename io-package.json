@@ -82,6 +82,14 @@
     "objects": [],
     "instanceObjects": [
     {
+      "_id": "info",
+      "type": "channel",
+      "common": {
+        "name": "Information"
+      },
+      "native": {}
+    },
+    {
       "_id": "info.connection",
       "type": "state",
       "common": {
@@ -92,7 +100,26 @@
         "read": "true",
         "role": "value.info",
         "write": "false"
-      }
+      },
+      "native": {}
+    },
+    {
+      "_id": "datapoints",
+      "type": "group",
+      "common": {
+        "name": "Datapoints",
+        "desc": "Subscribed datapoints from the Gardena cloud."
+      },
+      "native": {}
+    },
+    {
+      "_id": "locations",
+      "type": "group",
+      "common": {
+        "name": "Locations",
+        "desc": "Locations from the Gardena cloud."
+      },
+      "native": {}
     }
   ]
 }
