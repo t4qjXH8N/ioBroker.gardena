@@ -29,8 +29,8 @@
     // example: select elements with id=key and class=value and insert value
     if (!settings) return;
     $('.value').each(function () {
-      var $key = $(this);
-      var id = $key.attr('id');
+      let $key = $(this);
+      let id = $key.attr('id');
       if ($key.attr('type') === 'checkbox') {
         // do not call onChange direct, because onChange could expect some arguments
         $key.prop('checked', settings[id]).change(function() {
@@ -66,7 +66,28 @@
     });
 
     obj['gardena_datapoints'] = gsettings.gardena_datapoints;
+    //let test;
+    //obj['gardena_datapoints'] = test;
     callback(obj);
+  }
+
+  // get location data from id
+  function getLocationDetails(id, loc_data) {
+    for(let i=0;i<loc_data.length;i++) {
+      if(loc_data[i].id === id) {
+        // found location
+        return loc_data[i].name;
+      }
+    }
+  }
+
+  // get device data from id
+  function getDeviceDetails(id, dev_data) {
+    for(let i=0;i<dev_data.length;i++) {
+      if(dev_data[i].id === id) {
+        return {'name': dev_data[i].name, 'description': dev_data[i].description};
+      }
+    }
   }
 
   $(function() {
@@ -163,7 +184,7 @@
                       );
 
                       let cdev = devices.devices[j];
-                      createDeviceDetails(cdev, locations.locations[i].id + '_' + devices.devices[j].id);
+                      createDeviceDetails(cdev, locations.locations[i].id + '_' + devices.devices[j].id, {'locations': locations['locations'], 'devices': devices['devices']});
 
                       $('.collapsible').collapsible();
                       // uncheck all checkboxes
@@ -192,7 +213,7 @@
     });
   });
 
-  function createDeviceDetails(json, root_id) {
+  function createDeviceDetails(json, root_id, loc_dev_data) {
 
     for (let citem in json) {
       if (!json.hasOwnProperty(citem)) continue;
@@ -211,6 +232,8 @@
                 data['id'] = curelem.id;
                 data['name'] = curelem.name;
                 data['smart'] = true;
+                data['location'] = getLocationDetails(root_id.split('_')[0], loc_dev_data['locations']);
+                data['device'] = getDeviceDetails(root_id.split('_')[1], loc_dev_data['devices']);
 
                 $('#' + root_id + ' div.collapsible-body span ul').first().append(
                   '<ul class="collapsible light-blue lighten-4">\n' +
@@ -240,7 +263,7 @@
                   '</li>\n');
 
                 // check for properties
-                let props = ['value', 'writeable', 'unit'];
+                let props = ['writeable', 'unit'];
                 let celem;
                 for(let l=0;l<props.length;l++) {
                   celem = props[l];
@@ -301,7 +324,7 @@
                 '</ul>\n'
               );
 
-              createDeviceDetails(curelem, root_id + '_' + citem + '_' + i);
+              createDeviceDetails(curelem, root_id + '_' + citem + '_' + i, loc_dev_data);
             }
 
           }
@@ -320,7 +343,7 @@
           '</ul>\n'
         );
 
-        createDeviceDetails(json[citem], root_id + '_' + citem);
+        createDeviceDetails(json[citem], root_id + '_' + citem, loc_dev_data);
       } else {
         // create a node
         let val; // value of the checkbox contains meta data for the state (parseable JSON)
@@ -367,6 +390,8 @@
 
             data['role'] = $('#' + this.id + '_role').val();
             data['desc'] = $('#' + this.id + '_desc').val();
+            data['location'] = getLocationDetails(root_id.split('_')[0], loc_dev_data['locations']);
+            data['device'] = getDeviceDetails(root_id.split('_')[1], loc_dev_data['devices']);
 
             if(cval && this.checked) {
               gsettings.gardena_datapoints[this.id.replace('_checkbox', '')] = data;
@@ -402,13 +427,13 @@
                 <div class="row">
                     <div class="input-field col s12 m6 l4">
                         <input class="value" id="gardena_username" type="text">
-                        <label for="gardena_username" class="translate">gardena_username</label>
+                        <label for="gardena_username" class="translate active">gardena_username</label>
                     </div>
                 </div>
                 <div class="row">
                     <div class="input-field col s12 m6 l4">
                         <input class="value" id="gardena_password" type="password">
-                        <label for="gardena_password" class="translate">gardena_password</label>
+                        <label for="gardena_password" class="translate active">gardena_password</label>
                     </div>
                     <div class="col s6 m3 l2">
                         <a id="btn_check_connection" class="waves-effect waves-light btn translate">check_connection</a>
@@ -417,21 +442,21 @@
                 <div class="row">
                     <div class="input-field col s6 m3 l2">
                         <input class="value" id="gardena_reconnect_interval" type="text">
-                        <label for="gardena_reconnect_interval" class="translate">gardena_reconnect_interval</label>
+                        <label for="gardena_reconnect_interval" class="translate active">gardena_reconnect_interval</label>
                     </div>
                     <div class="input-field col s6 m3 l2">
                         <input class="value" id="gardena_polling_interval" type="text">
-                        <label for="gardena_polling_interval" class="translate">gardena_polling_interval</label>
+                        <label for="gardena_polling_interval" class="translate active">gardena_polling_interval</label>
                     </div>
                     <div class="input-field col s6 m3 l2">
                         <input class="value" id="gardena_update_locations_counter" type="text">
-                        <label for="gardena_update_locations_counter" class="translate">gardena_update_locations_counter</label>
+                        <label for="gardena_update_locations_counter" class="translate active">gardena_update_locations_counter</label>
                     </div>
                 </div>
                 <div class="row">
                     <div class="col s12 m6 l2">
                         <input class="value" id="gardena_smart_datapoints" type="checkbox">
-                        <label for="gardena_smart_datapoints" class="translate">gardena_smart_datapoints</label>
+                        <label for="gardena_smart_datapoints" class="translate active">gardena_smart_datapoints</label>
                     </div>
                 </div>
                 <div class="row">
