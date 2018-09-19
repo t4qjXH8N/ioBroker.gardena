@@ -717,7 +717,12 @@ function createSetCommands(cdev, callback) {
 
 // synchronize config
 function syncConfig() {
+
   // compare gardena datapoints with objects, anything changed?
+  // create locations inside the datapoints structure
+  gardenaDBConnector.createDBDatapoints();
+
+  /*
   function stateInConfig(cstate) {
     let states = adapter.config.gardena_datapoints;
     for(let j=0;j<states.length;j++) {
@@ -734,8 +739,7 @@ function syncConfig() {
     });
   }
 
-  // create locations inside the datapoints structure
-  let settings_dp = adapter.config.gardena_datapoints;
+
   let obj;
   let created_locations = [];
   for(let cdp in settings_dp) {
@@ -815,4 +819,5 @@ function syncConfig() {
       }
     });
   }
+  */
 }
