@@ -51,6 +51,7 @@
     M.updateTextFields();  // function Materialize.updateTextFields(); to reinitialize all the Materialize labels on the page if you are dynamically adding inputs.
     onChange(false);
   }
+
   // ... and the function save has to exist.
   // you have to make sure the callback is called with the settings object as first param!
   function save(callback) {
@@ -66,8 +67,6 @@
     });
 
     obj['gardena_datapoints'] = gsettings.gardena_datapoints;
-    //let test;
-    //obj['gardena_datapoints'] = test;
     callback(obj);
   }
 
@@ -120,6 +119,10 @@
           }
         });
       });
+    });
+
+    $('#gardena_smart_datapoints').on('change', function () {
+        gsettings.gardena_datapoints = undefined;
     });
 
     $('.collapsible').collapsible();
@@ -398,7 +401,7 @@
             } else {
               delete gsettings.gardena_datapoints[this.id.replace('_checkbox', '')];
             }
-            gonChange()
+            gonChange(true);
         });
       }
     }

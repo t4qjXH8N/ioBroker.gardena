@@ -1,17 +1,41 @@
 /*global systemDictionary:true */
-'use strict';
+"use strict";
 
 systemDictionary = {
-    "gardena settings": {                            "en": "Gardena smart system settings",                   "de": "Gardena Smart System Einstellungen",              "ru": "Gardena smart system settings",                   "pt": "Gardena smart system settings",                   "nl": "Gardena smart system settings",                   "fr": "Gardena smart system settings",                   "it": "Gardena smart system settings",                   "es": "Gardena smart system settings",                   "pl": "Gardena smart system settings"},
-    "gardena_password": {                            "en": "Password",                                        "de": "Passwort",                                        "ru": "Password",                                        "pt": "Password",                                        "nl": "Password",                                        "fr": "Password",                                        "it": "Password",                                        "es": "Password",                                        "pl": "Password"},
-    "gardena_polling_interval": {                    "en": "Polling interval (s)",                            "de": "Abfrageintervall (s)",                            "ru": "Polling interval (s)",                            "pt": "Polling interval (s)",                            "nl": "Polling interval (s)",                            "fr": "Polling interval (s)",                            "it": "Polling interval (s)",                            "es": "Polling interval (s)",                            "pl": "Polling interval (s)"},
-    "gardena_reconnect_interval": {                  "en": "Time between reconnection tries (s)",             "de": "Zeit zwischen Verbindungsversuchen (s)",          "ru": "Time between reconnection tries (s)",             "pt": "Time between reconnection tries (s)",             "nl": "Time between reconnection tries (s)",             "fr": "Time between reconnection tries (s)",             "it": "Time between reconnection tries (s)",             "es": "Time between reconnection tries (s)",             "pl": "Time between reconnection tries (s)"},
-    "gardena_username": {                            "en": "Username",                                        "de": "Benutzername",                                    "ru": "Username",                                        "pt": "Username",                                        "nl": "Username",                                        "fr": "Username",                                        "it": "Username",                                        "es": "Username",                                        "pl": "Username"},
-    "loading_message": {                             "en": "Loading gardena states",                          "de": "Lade Datenpunkte von Gardena"},
-    "login_data": {                                  "en": "Authentification",                                "de": "Anmeldedaten",                                    "ru": "Authentification",                                "pt": "Authentification",                                "nl": "Authentification",                                "fr": "Authentification",                                "it": "Authentification",                                "es": "Authentification",                                "pl": "Authentification"},
-    "no_connection_to_gardena": {                    "en": "No connection to Gardena cloud",                   "de": "Keine Verbindung zur Gardena Cloud"},
-    "gardena_smart_datapoints": {                    "en": "Smart datapoints",                                 "de": "Smarte-Datenpunkte"},
-    "gardena_update_locations_counter": {            "en": "Update locations each poll",                       "de": "Update Orte nur jeden x-ten Poll"},
-    "on save adapter restarts with new config immediately": {"en": "on save adapter restarts with new config immediately", "de": "Beim Speichern von Einstellungen wird der Adapter sofort neu gestartet.", "ru": "Сразу после сохранения настроек драйвер перезапуститься с новыми значениями", "pt": "on save adapter restarts with new config immediately", "nl": "on save adapter restarts with new config immediately", "fr": "on save adapter restarts with new config immediately", "it": "on save adapter restarts with new config immediately", "es": "on save adapter restarts with new config immediately", "pl": "on save adapter restarts with new config immediately"},
-    "check_connection": {"en": "check connection", "de": "Verbindungstest"}
+    "gardena settings": {
+      "en": "Gardena smart system settings",
+    },
+    "gardena_password": {
+      "en": "Password",
+    },
+    "gardena_polling_interval": {
+      "en": "Polling interval (s)"
+    },
+    "gardena_reconnect_interval": {
+      "en": "Time between reconnection tries (s)",
+    },
+    "gardena_username": {
+      "en": "Username",
+    },
+    "loading_message": {
+      "en": "Loading gardena states",
+    },
+    "login_data": {
+      "en": "Authentification",
+    },
+    "no_connection_to_gardena": {
+      "en": "No connection to Gardena cloud",
+    },
+    "gardena_smart_datapoints": {
+      "en": "Smart datapoints",
+    },
+    "gardena_update_locations_counter": {
+      "en": "Update locations each poll",
+    },
+    "on save adapter restarts with new config immediately": {
+      "en": "on save adapter restarts with new config immediately",
+    },
+    "check_connection": {
+      "en": "check connection",
+    }
 };
