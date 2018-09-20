@@ -36,7 +36,7 @@ let auth = {
 };
 
 let conn_timeout_id = null; // timeout interval id
-let update_locations_counter = 30; // update locations in the database with this interval (saves ressources)
+let update_locations_counter = 30; // update locations in the database with this interval (saves resources)
 
 const gardenaDBConnector = require(__dirname + '/lib/gardenaDBConnector');
 
@@ -66,7 +66,7 @@ adapter.on('stateChange', function (id, state) {
   adapter.log.debug('stateChange ' + id + ' ' + JSON.stringify(state));
 
   // connection related state change
-  if(id && state && id === state.from.split('.')[2]+'.'+state.from.split('.')[3] + '.' + 'info.connection') {
+  if(id && state && id === state.from.split('.')[2] + '.' + state.from.split('.')[3] + '.' + 'info.connection') {
     adapter.log.debug('Change in connection detected.');
 
       if (Number(adapter.config.gardena_polling_interval)*1000 < min_polling_interval) {
@@ -75,14 +75,10 @@ adapter.on('stateChange', function (id, state) {
         if (state.val === true) {
           // got connection
           clearTimeout(conn_timeout_id);
-          poll(function () {
-          });
-          // enable polling
-          setInterval(function () {
-            poll(function (err) {
+          poll();
 
-            });
-          }, Number(adapter.config.gardena_polling_interval) * 1000);
+          // enable polling
+          setInterval(function () {poll();}, Number(adapter.config.gardena_polling_interval) * 1000);
         } else {
           // lost connection
           connect(function(err, auth_data) {
@@ -108,16 +104,16 @@ adapter.on('stateChange', function (id, state) {
 
   // you can use the ack flag to detect if it is status (true) or command (false)
   if (state && state.val && !state.ack) {
-    adapter.log.debug('ack is not set!');
 
+    /*
     triggeredEvent(id, state, function (err) {
       if(err) adapter.log.error('An error occurred during trigger!')
     });
+    */
   }
 });
 
 // is called when databases are connected and adapter received configuration.
-// start here!
 adapter.on('ready', function () {
   // start main function
   main();
@@ -198,14 +194,11 @@ adapter.on('message', function (obj) {
 
 // main function
 function main() {
-  gardenaDBConnector.setAdapter(adapter);
-
-  // The adapters config (in the instance object everything under the attribute "native") is accessible via
-  // adapter.config:
   adapter.log.info('Starting gardena smart system adapter');
 
-  // check setup
-  syncConfig();
+  gardenaDBConnector.setAdapter(adapter);  // set adapter instance in the DBConnector
+
+  syncConfig();  // sync database with config
 
   // connect to gardena smart system service and start polling
   connect(function(err, auth_data) {
@@ -216,6 +209,7 @@ function main() {
     }
   });
 
+  // TODO: some datapoints have to be subscribed (those ones with writable set to true)
   // gardena subscribes to all state changes
   adapter.subscribeStates('devices.*.commands.*.send');
   adapter.subscribeStates('info.connection');
@@ -252,7 +246,7 @@ function connect(username, password, callback) {
       // no connection or auth failure
       adapter.log.error(err);
       adapter.log.info('Connection failure.');
-      adapter.setState('info.connection', false, function() {});
+      adapter.setState('info.connection', false);
 
       auth = {
         user_id: null,
@@ -273,7 +267,7 @@ function connect(username, password, callback) {
           refresh_token: null
         };
 
-        adapter.setState('info.connection', false, function() {});
+        adapter.setState('info.connection', false);
         adapter.log.debug('Deleted auth tokens.');
         adapter.log.error('Connection works, but authorization failure (wrong password?)!');
         if(callback) callback(err, auth);
@@ -305,40 +299,50 @@ function connect(username, password, callback) {
 
 // poll locations, devices, etc.
 function poll(callback) {
-
-  adapter.log.info('Polling locations.');
-  retrieveLocations(auth.token, auth.user_id, function (err, locations) {
-    if(err || !locations) {
-      adapter.log.error('Error retrieving the locations.')
-    } else {
-      adapter.log.info('Update locations in the database.');
-      if(update_locations_counter === 30) {
+  // first poll the locations (if the counter says we should do so)
+  if(update_locations_counter === 30) {
+    adapter.log.info('Polling locations.');
+    retrieveLocations(auth.token, auth.user_id, function (err, locations) {
+      if (err || !locations) {
+        adapter.log.error('Error retrieving the locations.')
+      } else {
         gardenaDBConnector.updateDBLocations(locations);
-        update_locations_counter = 0;
+        adapter.log.info('Updated locations in the database.');
       }
-      update_locations_counter += 1;
+      adapter.log.debug('Retrieved all locations.');
+      update_locations_counter = 0;
+    });
+  }
+  update_locations_counter += 1;
 
-      // get selected datapoints and update db
-      adapter.log.debug('Retrieved all locations, get all devices');
+  // poll datapoints for devices for all locations
+  adapter.getStates('gardena.' + adapter.instance + '.locations.*', function (err, states) {
+    if(err) {
+      adapter.log.error(err);
+      return
+    }
+    // get distinct locations
+    let locations = [];
+    for(let cloc in states) {
+      if(!locations.includes(cloc.split('.')[3])) {
+        locations.push(cloc.split('.')[3]);
+      }
+    }
 
-      // go through all location ids and retrieve device information
-      adapter.getStates('gardena.' + adapter.instance + '.locations.*', function (err, states) {
-
-        for(let cstate in states) {
-          let location_id = cstate.split('.')[3];
-          retrieveDevicesFromLocation(auth.token, location_id, function (err, devices) {
-            if (err) {
-              adapter.log.error('Could not get device from location ' + location_id);
-              callback(err);
-            } else {
-              updateDBDatapoints(devices, function(err) {});
-              callback(false);
-            }
+    // get devices for all locations
+    for(let i=0;i<locations.length;i++) {
+      retrieveDevicesFromLocation(auth.token, locations[i], function (err, devices) {
+        if (err) {
+          adapter.log.error('Could not get device from location.');
+          if (callback) callback(err);
+        } else {
+          gardenaDBConnector.updateDBDatapoints(locations[i], devices, function (err) {
+            if (callback) callback(err);
           });
         }
       });
     }
-  })
+  });
 }
 
 // create json that we have to send to the device
@@ -590,32 +594,6 @@ function retrieveDevicesFromLocation(token, location_id, callback) {
       callback(err, jsondata);
     }
   });
-}
-
-// update specific gardena datapoints
-function updateDBDatapoints(devices, callback) {
-  let settings_dp = adapter.config.gardena_datapoints;
-
-  if(adapter.config.smart_gardena_datapoints) {
-
-
-  } else {
-    // go through all "whitelist" states
-    if (settings_dp) {
-      for (let cstate in settings_dp) {
-        let state = 'locations.' + cstate;
-        state = state.split('_');
-        state.pop();
-        state = state.join('.');
-
-        adapter.setState(state, settings_dp[cstate].value, false);
-
-      }
-
-    }
-  }
-
-  if (callback) callback(false);
 }
 
 function setCommands_to_DB(cdev, prefix, cmd, callback) {
