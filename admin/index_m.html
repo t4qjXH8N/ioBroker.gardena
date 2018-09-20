@@ -254,10 +254,10 @@
                 // create the master checkbox
                 $('#' + root_id + '_' + data.id + ' div.collapsible-body span ul').first().append(
                   '<li class="collection-item">\n' +
-                  '    <input id="' + root_id + '_' + data.id + '_checkbox_input" type="text" class="hide" />\n' +
+                  '    <input id="' + root_id + '_' + data.id + '_smart_checkbox_input" type="text" class="hide" />\n' +
                   '    <div class="row">\n' +
                   '        <div class="col s12">\n' +
-                  '            <label><input id="' + root_id + '_' + data.id + '_checkbox" type="checkbox" class="filled-in" checked="checked" />\n' +
+                  '            <label><input id="' + root_id + '_' + data.id + '_smart_checkbox" type="checkbox" class="filled-in" checked="checked" />\n' +
                   '            <span>' + data.name+ ' </span></label>\n' +
                   '        </div>\n' +
                   '        <div class="row">\n' +
@@ -297,12 +297,30 @@
                 // add a role
                 $('#' + root_id + '_' + data.id + ' div.collapsible-body span ul div.row div.row').first().append(
                   '            <div class="input-field col s6">\n' +
-                  '                <input id="' + root_id + '_' + data.id + '_checkbox_role" type="input" value="state" />\n' +
-                  '                <label for="' + root_id + '_' + data.id + '_checkbox_role" class="translate">datapoint_role</label>\n' +
+                  '                <input id="' + root_id + '_' + data.id + '_smart_checkbox_role" type="input" value="state" />\n' +
+                  '                <label for="' + root_id + '_' + data.id + '_smart_checkbox_role" class="translate">datapoint_role</label>\n' +
                   '            </div>\n');
 
                 // add date to hidden input field
-                $('#' + root_id + '_' + data.id + '_checkbox_input').val(JSON.stringify(data));
+                $('#' + root_id + '_' + data.id + '_smart_checkbox_input').val(JSON.stringify(data));
+
+                // add action for smart datapoints
+                $('#' + root_id + '_' + data.id + '_smart_checkbox').change(function() {
+                  let cval = $('#' + this.id + '_input').val();
+                  let data = JSON.parse(cval);
+
+                  data['role'] = $('#' + this.id + '_role').val();
+                  data['desc'] = $('#' + this.id + '_desc').val();
+                  data['location'] = getLocationDetails(root_id.split('_')[0], loc_dev_data['locations']);
+                  data['device'] = getDeviceDetails(root_id.split('_')[1], loc_dev_data['devices']);
+
+                  if(cval && this.checked) {
+                    gsettings.gardena_datapoints[this.id.replace('_smart_checkbox', '')] = data;
+                  } else {
+                    delete gsettings.gardena_datapoints[this.id.replace('_smart_checkbox', '')];
+                  }
+                  gonChange(true);
+                });
             } else {
               let desc;
 
@@ -386,7 +404,7 @@
 
         $('#' + root_id + '_' + citem + '_checkbox_input').val(JSON.stringify(val));
 
-        // add action
+        // add action for dump datapoints
         $('#' + root_id + '_' + citem + '_checkbox').change(function() {
             let cval = $('#' + this.id + '_input').val();
             let data = JSON.parse(cval);
