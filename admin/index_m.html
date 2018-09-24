@@ -106,11 +106,10 @@
           return;
         }
 
-        let credentials =
-          '{' +
-          '"gardena_username": "' + $('#gardena_username.value').val() + '",' +
-          '"gardena_password": "' + $('#gardena_password.value').val() + '"' +
-          '}';
+        let credentials = {
+          "gardena_username": $('#gardena_username.value').val(),
+          "gardena_password": $('#gardena_password.value').val()
+        };
 
         sendTo('gardena.' + instance, 'checkConnection', credentials, function (conn_status) {
           if (conn_status === true) {
