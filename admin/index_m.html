@@ -23,6 +23,7 @@
 <script type="text/javascript">
   let gsettings;
   let gonChange;
+  let conf_seperator = '_';
 
   // the function loadSettings has to exist ...
   function load(settings, onChange) {
@@ -175,7 +176,7 @@
                     for(let j=0;j<devices.devices.length;j++) {
                       $('#' + locations.locations[i].id + ' div.collapsible-body span').first().append(
                         '<ul class="collapsible">\n' +
-                        '    <li id="' + locations.locations[i].id + '_' + devices.devices[j].id + '">\n' +
+                        '    <li id="' + locations.locations[i].id + conf_seperator + devices.devices[j].id + '">\n' +
                         '        <div class="collapsible-header"><i class="material-icons">devices</i>' + devices.devices[j].name +'</div>\n' +
                         '        <div class="collapsible-body">\n' +
                         '            <span>\n' +
@@ -187,7 +188,7 @@
                       );
 
                       let cdev = devices.devices[j];
-                      createDeviceDetails(cdev, locations.locations[i].id + '_' + devices.devices[j].id, {'locations': locations['locations'], 'devices': devices['devices']});
+                      createDeviceDetails(cdev, locations.locations[i].id + conf_seperator + devices.devices[j].id, {'locations': locations['locations'], 'devices': devices['devices']});
 
                       $('.collapsible').collapsible();
                       // uncheck all checkboxes
@@ -236,12 +237,12 @@
                 data['id'] = curelem.id;
                 data['name'] = curelem.name;
                 data['smart'] = true;
-                data['location'] = getLocationDetails(root_id.split('_')[0], loc_dev_data['locations']);
-                data['device'] = getDeviceDetails(root_id.split('_')[1], loc_dev_data['devices']);
+                data['location'] = getLocationDetails(root_id.split(conf_seperator)[0], loc_dev_data['locations']);
+                data['device'] = getDeviceDetails(root_id.split(conf_seperator)[1], loc_dev_data['devices']);
 
                 $('#' + root_id + ' div.collapsible-body span ul').first().append(
                   '<ul class="collapsible light-blue lighten-4">\n' +
-                  '    <li id="' + root_id + '_' + data.id + '" class="light-blue lighten-4">\n' +
+                  '    <li id="' + root_id + conf_seperator + data.id + '" class="light-blue lighten-4">\n' +
                   '        <div class="collapsible-header light-blue lighten-4">' + data.name + ' (SMART)</div>\n' +
                   '        <div class="collapsible-body">\n' +
                   '            <span>\n' +
@@ -253,12 +254,12 @@
                 );
 
                 // create the master checkbox
-                $('#' + root_id + '_' + data.id + ' div.collapsible-body span ul').first().append(
+                $('#' + root_id + conf_seperator + data.id + ' div.collapsible-body span ul').first().append(
                   '<li class="collection-item">\n' +
-                  '    <input id="' + root_id + '_' + data.id + '_smart_checkbox_input" type="text" class="hide" />\n' +
+                  '    <input id="' + root_id + conf_seperator + data.id + '_smart_checkbox_input" type="text" class="hide" />\n' +
                   '    <div class="row">\n' +
                   '        <div class="col s12">\n' +
-                  '            <label><input id="' + root_id + '_' + data.id + '_smart_checkbox" type="checkbox" class="filled-in" checked="checked" />\n' +
+                  '            <label><input id="' + root_id + conf_seperator + data.id + '_smart_checkbox" type="checkbox" class="filled-in" checked="checked" />\n' +
                   '            <span>' + data.name+ ' </span></label>\n' +
                   '        </div>\n' +
                   '        <div class="row">\n' +
@@ -277,18 +278,18 @@
                     if(celem === 'value') {
                       // in the case of a value we have to check the type
                       if(typeof curelem[celem] === 'string') {
-                        $('#' + root_id + '_' + data.id + ' div.collapsible-body span ul div.row div.row').first().append(
+                        $('#' + root_id + conf_seperator + data.id + ' div.collapsible-body span ul div.row div.row').first().append(
                           '            <div class="input-field col s6">\n' +
-                          '                <input id="' + root_id + '_' + data.id + '_input_' + celem + '" type="input" value="' + curelem[celem] + '" />\n' +
-                          '                <label for="' + root_id + '_' + data.id + '_input_' + celem + '" class="translate">datapoint_value</label>\n' +
+                          '                <input id="' + root_id + conf_seperator + data.id + conf_seperator + 'input' + conf_seperator + celem + '" type="input" value="' + curelem[celem] + '" />\n' +
+                          '                <label for="' + root_id + conf_seperator + data.id + conf_seperator + 'input' + conf_seperator + celem + '" class="translate">datapoint_value</label>\n' +
                           '            </div>\n'
                         );
                       }
                     } else {
-                      $('#' + root_id + '_' + data.id + ' div.collapsible-body span ul div.row div.row').first().append(
+                      $('#' + root_id + conf_seperator + data.id + ' div.collapsible-body span ul div.row div.row').first().append(
                         '            <div class="input-field col s6">\n' +
-                        '                <input id="' + root_id + '_' + data.id + '_input_' + celem + '" type="input" value="' + curelem[celem] +'" />\n' +
-                        '                <label for="' + root_id + '_' + data.id + '_input_' + celem + '" class="translate">datapoint_' + celem + '</label>\n' +
+                        '                <input id="' + root_id + conf_seperator + data.id + conf_seperator + 'input' + conf_seperator + celem + '" type="input" value="' + curelem[celem] +'" />\n' +
+                        '                <label for="' + root_id + conf_seperator + data.id + conf_seperator + 'input' + conf_seperator + celem + '" class="translate">datapoint_' + celem + '</label>\n' +
                         '            </div>\n'
                       );
                     }
@@ -296,24 +297,24 @@
                 }
 
                 // add a role
-                $('#' + root_id + '_' + data.id + ' div.collapsible-body span ul div.row div.row').first().append(
+                $('#' + root_id + conf_seperator + data.id + ' div.collapsible-body span ul div.row div.row').first().append(
                   '            <div class="input-field col s6">\n' +
-                  '                <input id="' + root_id + '_' + data.id + '_smart_checkbox_role" type="input" value="state" />\n' +
-                  '                <label for="' + root_id + '_' + data.id + '_smart_checkbox_role" class="translate">datapoint_role</label>\n' +
+                  '                <input id="' + root_id + conf_seperator + data.id + '_smart_checkbox_role" type="input" value="state" />\n' +
+                  '                <label for="' + root_id + conf_seperator + data.id + '_smart_checkbox_role" class="translate">datapoint_role</label>\n' +
                   '            </div>\n');
 
                 // add data to hidden input field
-                $('#' + root_id + '_' + data.id + '_smart_checkbox_input').val(JSON.stringify(data));
+                $('#' + root_id + conf_seperator + data.id + '_smart_checkbox_input').val(JSON.stringify(data));
 
                 // add action for smart datapoints
-                $('#' + root_id + '_' + data.id + '_smart_checkbox').change(function() {
+                $('#' + root_id + conf_seperator + data.id + '_smart_checkbox').change(function() {
                   let cval = $('#' + this.id + '_input').val();
                   let data = JSON.parse(cval);
 
                   data['role'] = $('#' + this.id + '_role').val();
                   data['desc'] = $('#' + this.id + '_desc').val();
-                  data['location'] = getLocationDetails(root_id.split('_')[0], loc_dev_data['locations']);
-                  data['device'] = getDeviceDetails(root_id.split('_')[1], loc_dev_data['devices']);
+                  data['location'] = getLocationDetails(root_id.split(conf_seperator)[0], loc_dev_data['locations']);
+                  data['device'] = getDeviceDetails(root_id.split(conf_seperator)[1], loc_dev_data['devices']);
 
                   if(cval && this.checked) {
                     gsettings.gardena_datapoints[this.id.replace('_smart_checkbox', '')] = data;
@@ -336,7 +337,7 @@
 
               $('#' + root_id + ' div.collapsible-body span ul').first().append(
                 '<ul class="collapsible">\n' +
-                '    <li id="' + root_id + '_' + citem + '_' + i + '">\n' +
+                '    <li id="' + root_id + conf_seperator + citem + conf_seperator + i + '">\n' +
                 '        <div class="collapsible-header">' + desc +'</div>\n' +
                 '        <div class="collapsible-body">\n' +
                 '            <span>\n' +
@@ -347,7 +348,7 @@
                 '</ul>\n'
               );
 
-              createDeviceDetails(curelem, root_id + '_' + citem + '_' + i, loc_dev_data);
+              createDeviceDetails(curelem, root_id + conf_seperator + citem + conf_seperator + i, loc_dev_data);
             }
 
           }
@@ -355,7 +356,7 @@
       } else if (typeof json[citem] === 'object') {
         $('#' + root_id + ' div.collapsible-body span ul').first().append(
           '<ul class="collapsible">\n' +
-          '    <li id="' + root_id + '_' + citem + '">\n' +
+          '    <li id="' + root_id + conf_seperator + citem + '">\n' +
           '        <div class="collapsible-header">' + citem +'</div>\n' +
           '        <div class="collapsible-body">\n' +
           '            <span>\n' +
@@ -366,7 +367,7 @@
           '</ul>\n'
         );
 
-        createDeviceDetails(json[citem], root_id + '_' + citem, loc_dev_data);
+        createDeviceDetails(json[citem], root_id + conf_seperator + citem, loc_dev_data);
       } else {
         // create a node
         let val; // value of the checkbox contains meta data for the state (parseable JSON)
@@ -385,36 +386,36 @@
 
         $('#' + root_id + ' div.collapsible-body span ul').first().append(
           '<li class="collection-item">\n' +
-          '    <input id="' + root_id + '_' + citem + '_checkbox_input" type="text" class="hide" />\n' +
+          '    <input id="' + root_id + conf_seperator + citem + '_checkbox_input" type="text" class="hide" />\n' +
           '    <div class="row">\n' +
           '        <div class="col s12">\n' +
-          '            <label><input id="' + root_id + '_' + citem + '_checkbox" type="checkbox" class="filled-in" checked="checked" />\n' +
+          '            <label><input id="' + root_id + conf_seperator + citem + '_checkbox" type="checkbox" class="filled-in" checked="checked" />\n' +
           '            <span>' + citem + ' (value=' + json[citem] + ')</span></label>\n' +
           '        </div>\n' +
           '        <div class="row">\n' +
           '            <div class="input-field col s6">\n' +
-          '                <input id="' + root_id + '_' + citem + '_checkbox_role" type="input" value="state" />\n' +
-          '                <label for="' + root_id + '_' + citem + '_checkbox_role" class="translate">datapoint_role</label>\n' +
+          '                <input id="' + root_id + conf_seperator + citem + '_checkbox_role" type="input" value="state" />\n' +
+          '                <label for="' + root_id + conf_seperator + citem + '_checkbox_role" class="translate">datapoint_role</label>\n' +
           '            </div>\n' +
           '            <div class="input-field col s6">\n' +
-          '                <input id="' + root_id + '_' + citem + '_checkbox_desc" type="input" value="' + citem + '" />\n' +
-          '                <label for="' + root_id + '_' + citem + '_checkbox_desc" class="translate">datapoint_description</label>\n' +
+          '                <input id="' + root_id + conf_seperator + citem + '_checkbox_desc" type="input" value="' + citem + '" />\n' +
+          '                <label for="' + root_id + conf_seperator + citem + '_checkbox_desc" class="translate">datapoint_description</label>\n' +
           '            </div>\n' +
           '        </div>\n' +
           '    </div>\n' +
           '</li>\n');
 
-        $('#' + root_id + '_' + citem + '_checkbox_input').val(JSON.stringify(val));
+        $('#' + root_id + conf_seperator + citem + '_checkbox_input').val(JSON.stringify(val));
 
         // add action for dump datapoints
-        $('#' + root_id + '_' + citem + '_checkbox').change(function() {
+        $('#' + root_id + conf_seperator + citem + '_checkbox').change(function() {
             let cval = $('#' + this.id + '_input').val();
             let data = JSON.parse(cval);
 
             data['role'] = $('#' + this.id + '_role').val();
             data['desc'] = $('#' + this.id + '_desc').val();
-            data['location'] = getLocationDetails(root_id.split('_')[0], loc_dev_data['locations']);
-            data['device'] = getDeviceDetails(root_id.split('_')[1], loc_dev_data['devices']);
+            data['location'] = getLocationDetails(root_id.split(conf_seperator)[0], loc_dev_data['locations']);
+            data['device'] = getDeviceDetails(root_id.split(conf_seperator)[1], loc_dev_data['devices']);
 
             if(cval && this.checked) {
               gsettings.gardena_datapoints[this.id.replace('_checkbox', '')] = data;
