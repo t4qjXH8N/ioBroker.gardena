@@ -316,7 +316,7 @@ function poll(callback) {
   update_locations_counter += 1;
 
   // poll datapoints for devices for all locations
-  adapter.getStates('gardena.' + adapter.instance + '.locations.*', function (err, states) {
+  adapter.getStates(gardenaDBConnector.getloc_prefix() + '*', function (err, states) {
     if(err) {
       adapter.log.error(err);
       return

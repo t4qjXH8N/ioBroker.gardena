@@ -19,7 +19,8 @@
   },
   "dependencies": {
     "deepmerge": "^2.1.1",
-    "request": "^2.83.0"
+    "request": "^2.83.0",
+    "json-query": "^2.2.2"
   },
   "devDependencies": {
     "gulp": "^3.9.1",

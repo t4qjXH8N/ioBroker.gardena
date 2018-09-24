@@ -122,7 +122,7 @@
     });
 
     $('#gardena_smart_datapoints').on('change', function () {
-        gsettings.gardena_datapoints = undefined;
+        gsettings.gardena_datapoints = {};
     });
 
     $('.collapsible').collapsible();
@@ -230,6 +230,7 @@
             // check if we have a smart datapoint here
             if(curelem.hasOwnProperty('id') && curelem.hasOwnProperty('name')
               && curelem.hasOwnProperty('value') && $('#gardena_smart_datapoints').prop('checked')) {
+                // SMART DATAPOINT
                 let data = {};
 
                 data['id'] = curelem.id;
@@ -301,7 +302,7 @@
                   '                <label for="' + root_id + '_' + data.id + '_smart_checkbox_role" class="translate">datapoint_role</label>\n' +
                   '            </div>\n');
 
-                // add date to hidden input field
+                // add data to hidden input field
                 $('#' + root_id + '_' + data.id + '_smart_checkbox_input').val(JSON.stringify(data));
 
                 // add action for smart datapoints
@@ -322,6 +323,7 @@
                   gonChange(true);
                 });
             } else {
+              // DUMP DATAPOINT
               let desc;
 
               if(curelem.name) {
