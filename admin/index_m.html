@@ -336,7 +336,7 @@
 
               $('#' + root_id + ' div.collapsible-body span ul').first().append(
                 '<ul class="collapsible">\n' +
-                '    <li id="' + root_id + conf_seperator + citem + conf_seperator + i + '">\n' +
+                '    <li id="' + root_id + conf_seperator + citem + conf_seperator + i + conf_seperator + curelem.id + '">\n' +
                 '        <div class="collapsible-header">' + desc +'</div>\n' +
                 '        <div class="collapsible-body">\n' +
                 '            <span>\n' +
@@ -347,7 +347,7 @@
                 '</ul>\n'
               );
 
-              createDeviceDetails(curelem, root_id + conf_seperator + citem + conf_seperator + i, loc_dev_data);
+              createDeviceDetails(curelem, root_id + conf_seperator + citem + conf_seperator + i + conf_seperator + curelem.id, loc_dev_data);
             }
 
           }
