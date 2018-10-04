@@ -93,6 +93,16 @@
   $(function() {
     let auth;
 
+    $('#btn_datapoints_select_all').on('click', function() {
+      $('#datapoints_selection input[type="checkbox"]').prop('checked', true);
+      gonChange(true);
+    });
+
+    $('#btn_datapoints_deselect_all').on('click', function() {
+      $('#datapoints_selection input[type="checkbox"]').prop('checked', false);
+      gonChange(true);
+    });
+
     $('#btn_check_connection').on('click', function () {
       let active = false;
       getIsAdapterAlive(function (isAlive) {
@@ -146,7 +156,7 @@
         };
 
         $('#datapoint_progress').removeClass('hide');
-        $('#datapoints-locations').addClass('hide');
+        $('#datapoints_selection').addClass('hide');
 
         $('#datapoints-locations ul').empty();
         // connect to gardena cloud
@@ -194,7 +204,7 @@
                       $('#datapoints-locations ul input:checkbox').prop('checked', false);
 
                       $('#datapoint_progress').addClass('hide');
-                      $('#datapoints-locations').removeClass('hide');
+                      $('#datapoints_selection').removeClass('hide');
                     }
 
                     // evaluate hidden text field and mark checkboxes
@@ -488,12 +498,26 @@
                     </div>
                 </div>
             </div>
-            <div id="tab-datapoints" class="col s12 page">
+            <div id="tab-datapoints" class="col s12 m12 l12 page">
                 <div id="datapoint_progress" class="progress">
                     <div class="indeterminate" id="datapoint_progress_indeterminate"></div>
                 </div>
-                <div id="datapoints-locations" class="hide">
-                    <ul class="collapsible"></ul>
+                <div id="datapoints_selection" class="hide">
+                    <div class="row s3 m3 l3">
+                        <div class="col">
+                            <a class="waves-effect waves-light btn translate" id="btn_datapoints_select_all">select_all</a>
+                        </div>
+                        <div class="col">
+                            <a class="waves-effect waves-light btn translate" id="btn_datapoints_deselect_all">deselect_all</a>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col s12 m12 l12">
+                            <div id="datapoints-locations">
+                                <ul class="collapsible"></ul>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>

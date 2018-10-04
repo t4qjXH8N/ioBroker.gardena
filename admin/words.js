@@ -26,6 +26,12 @@ systemDictionary = {
     "no_connection_to_gardena": {
       "en": "No connection to Gardena cloud",
     },
+    "select_all": {
+      "en": "Check all (not recommended)",
+    },
+    "deselect_all": {
+      "en": "Uncheck all",
+    },
     "gardena_smart_datapoints": {
       "en": "Smart datapoints",
     },
