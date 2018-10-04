@@ -80,15 +80,6 @@ adapter.on('stateChange', function (id, state) {
           // enable polling
           setInterval(function () {poll();}, Number(adapter.config.gardena_polling_interval) * 1000);
         } else {
-          // lost connection
-          connect(function(err, auth_data) {
-            if(!err) {
-              auth = auth_data;
-            } else {
-              adapter.log.error(err);
-            }
-          });
-
           conn_timeout_id = setTimeout(function () {
             connect(function(err, auth_data) {
               if(!err) {
