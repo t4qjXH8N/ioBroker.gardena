@@ -119,15 +119,26 @@ adapter.on('message', function (obj) {
   if (obj) {
     switch (obj.command) {
       case 'checkConnection':
-        credentials = JSON.parse(obj.message);
+        credentials = obj.message;
 
-        connect(credentials.gardena_username, credentials.gardena_password, function (err) {
-          if (!err) {
-            adapter.sendTo(obj.from, obj.command, true, obj.callback);
-          } else {
-            adapter.sendTo(obj.from, obj.command, false, obj.callback);
-          }
-        });
+        function sub_connect() {
+          connect(credentials.gardena_username, credentials.gardena_password, function (err) {
+            if (!err) {
+              adapter.sendTo(obj.from, obj.command, true, obj.callback);
+            } else {
+              adapter.sendTo(obj.from, obj.command, false, obj.callback);
+            }
+          });
+        }
+
+        // is there already a connection?
+        if(!auth.token) {
+          disconnect(function(err) {
+            sub_connect
+          });
+        } else {
+          sub_connect();
+        }
         wait = true;
         break;
       case 'connect':
@@ -286,6 +297,17 @@ function connect(username, password, callback) {
       }
     }
   });
+}
+
+// disconnect from gardena cloud (i.e. clear all tokens)
+function disconnect(callback) {
+  auth = {
+    "token": null,
+    "user_id": null,
+    "refresh_token": null
+  };
+
+  if(callback) callback(false);
 }
 
 // poll locations, devices, etc.
