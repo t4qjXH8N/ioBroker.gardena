@@ -95,11 +95,14 @@
 
     $('#btn_datapoints_select_all').on('click', function() {
       $('#datapoints_selection input[type="checkbox"]').prop('checked', true);
+      $('#datapoints_selection input[type="checkbox"]').trigger('change');
       gonChange(true);
     });
 
     $('#btn_datapoints_deselect_all').on('click', function() {
       $('#datapoints_selection input[type="checkbox"]').prop('checked', false);
+      $('#datapoints_selection input[type="checkbox"]').trigger('change');
+      gsettings.gardena_datapoints = {};
       gonChange(true);
     });
 
