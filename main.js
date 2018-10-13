@@ -711,5 +711,5 @@ function syncConfig() {
 
   // compare gardena datapoints with objects, anything changed?
   // create locations inside the datapoints structure
-  gardenaDBConnector.createDBDatapoints();
+  gardenaDBConnector.syncDBDatapoints();
 }
