@@ -93,8 +93,8 @@ adapter.on('message', function (obj) {
         }
 
         // is there already a connection?
-        if(!auth.token) {
-          disconnect(function(err) {
+        if(!gardenaCloudConnector.is_connected()) {
+          gardenaCloudConnector.disconnect(function(err) {
             sub_connect();
           });
         } else {
@@ -106,7 +106,7 @@ adapter.on('message', function (obj) {
         credentials = obj.message;
 
         // check if already connected (do not care about the credentials)
-        if(!auth.token) {
+        if(!gardenaCloudConnector.is_connected()) {
           gardenaCloudConnector.connect(credentials.gardena_username, credentials.gardena_password, function (err, auth_data) {
             if (!err) {
               adapter.sendTo(obj.from, obj.command, auth_data, obj.callback);
@@ -115,14 +115,14 @@ adapter.on('message', function (obj) {
             }
           });
         } else {
-          adapter.sendTo(obj.from, obj.command, auth, obj.callback);
+          adapter.sendTo(obj.from, obj.command, gardenaCloudConnector.get_auth(), obj.callback);
         }
         wait = true;
         break;
       case 'retrieveLocations':
         msg = obj.message;
 
-        retrieveLocations(msg.token, msg.user_id, function (err, locations) {
+        gardenaCloudConnector.retrieveLocations(msg.token, msg.user_id, function (err, locations) {
           if(!err) {
             adapter.sendTo(obj.from, obj.command, locations, obj.callback);
           } else {
@@ -134,7 +134,7 @@ adapter.on('message', function (obj) {
       case 'retrieveDevices':
         msg = obj.message;
 
-        retrieveDevicesFromLocation(msg.token, msg.location_id, function (err, devices) {
+        gardenaCloudConnector.retrieveDevicesFromLocation(msg.token, msg.location_id, function (err, devices) {
           if(!err) {
             adapter.sendTo(obj.from, obj.command, devices, obj.callback);
           } else {
