@@ -5,9 +5,6 @@
 // you have to require the utils module and call adapter function
 const utils =    require(__dirname + '/lib/utils'); // Get common adapter utils
 
-// for communication
-const request = require('request');
-
 const deepmerge = require('deepmerge');
 
 // you have to call the adapter function and pass a options object
@@ -15,29 +12,9 @@ const deepmerge = require('deepmerge');
 // adapter will be restarted automatically every time as the configuration changed, e.g system.adapter.gardena.0
 const adapter = utils.Adapter('gardena');
 
-// gardena commands
-const gardena_commands = require(__dirname + '/gardena_commands.json');
-const min_polling_interval = 60; // minimum polling interval in seconds
+const gardena_commands = require(__dirname + '/gardena_commands.json');  // gardena commands
 
-// gardena config
-const gardena_config = {
-  "baseURI": "https://sg-api.dss.husqvarnagroup.net",
-  "devicesURI": "/sg-1/devices",
-  "sessionsURI": "/sg-1/sessions",
-  "locationsURI": "/sg-1/locations",
-  "abilitiesURI": "/abilities"
-};
-
-// auth data (tokens etc.)
-let auth = {
-  "token": null,
-  "user_id": null,
-  "refresh_token": null
-};
-
-let conn_timeout_id = null; // timeout interval id
-let update_locations_counter = 30; // update locations in the database with this interval (saves resources)
-
+const gardenaCloudConnector = require(__dirname + '/lib/gardenaCloudConnector');
 const gardenaDBConnector = require(__dirname + '/lib/gardenaDBConnector');
 
 // triggered when the adapter is installed
@@ -67,30 +44,14 @@ adapter.on('stateChange', function (id, state) {
 
   // connection related state change
   if(id && state && id === state.from.split('.')[2] + '.' + state.from.split('.')[3] + '.' + 'info.connection') {
-    adapter.log.debug('Change in connection detected.');
+    adapter.log.debug('Change in connection detected, setup polling if true.');
 
-      if (Number(adapter.config.gardena_polling_interval)*1000 < min_polling_interval) {
-        adapter.log.error('Polling interval should be greater than ' + min_polling_interval);
-      } else {
-        if (state.val === true) {
-          // got connection
-          clearTimeout(conn_timeout_id);
-          poll();
-
-          // enable polling
-          setInterval(function () {poll();}, Number(adapter.config.gardena_polling_interval) * 1000);
-        } else {
-          conn_timeout_id = setTimeout(function () {
-            connect(function(err, auth_data) {
-              if(!err) {
-                auth = auth_data;
-              } else {
-                adapter.log.error(err);
-              }
-            });
-          }, Number(adapter.config.gardena_reconnect_interval) * 1000);
-        }
-      }
+    if (state.val === true) {
+      // got connection
+      gardenaCloudConnector.setupPolling();
+    } else {
+      gardenaCloudConnector.reconnect();
+    }
   }
 
   // you can use the ack flag to detect if it is status (true) or command (false)
@@ -122,7 +83,7 @@ adapter.on('message', function (obj) {
         credentials = obj.message;
 
         function sub_connect() {
-          connect(credentials.gardena_username, credentials.gardena_password, function (err) {
+          gardenaCloudConnector.connect(credentials.gardena_username, credentials.gardena_password, function (err) {
             if (!err) {
               adapter.sendTo(obj.from, obj.command, true, obj.callback);
             } else {
@@ -134,7 +95,7 @@ adapter.on('message', function (obj) {
         // is there already a connection?
         if(!auth.token) {
           disconnect(function(err) {
-            sub_connect
+            sub_connect();
           });
         } else {
           sub_connect();
@@ -146,7 +107,7 @@ adapter.on('message', function (obj) {
 
         // check if already connected (do not care about the credentials)
         if(!auth.token) {
-          connect(credentials.gardena_username, credentials.gardena_password, function (err, auth_data) {
+          gardenaCloudConnector.connect(credentials.gardena_username, credentials.gardena_password, function (err, auth_data) {
             if (!err) {
               adapter.sendTo(obj.from, obj.command, auth_data, obj.callback);
             } else {
@@ -199,11 +160,12 @@ function main() {
   adapter.log.info('Starting gardena smart system adapter');
 
   gardenaDBConnector.setAdapter(adapter);  // set adapter instance in the DBConnector
+  gardenaCloudConnector.setAdapter(adapter);  // set adapter instance in the DBConnector
 
   syncConfig();  // sync database with config
 
   // connect to gardena smart system service and start polling
-  connect(function(err, auth_data) {
+  gardenaCloudConnector.connect(function(err, auth_data) {
     if(!err) {
       auth = auth_data;
     } else {
@@ -229,251 +191,7 @@ function main() {
   adapter.subscribeStates('info.connection');
 }
 
-// connect to gardena smart cloud service
-function connect(username, password, callback) {
-  adapter.log.info("Connecting to Gardena Smart System Service ...");
-
-  if(!username || typeof username === 'function') {
-    username = adapter.config.gardena_username;
-  }
-
-  if(!password || typeof password === 'function') {
-    password = adapter.config.gardena_password;
-  }
-
-  let options_connect = {
-    url: gardena_config.baseURI + gardena_config.sessionsURI,
-    headers: {
-      "Content-Type": "application/json"
-    },
-    method: "POST",
-    json: {
-      "sessions": {
-        "email": username,
-        "password": password
-      }
-    }
-  };
-
-  request(options_connect, function(err, response, body){
-    if(err || !response) {
-      // no connection or auth failure
-      adapter.log.error(err);
-      adapter.log.info('Connection failure.');
-      adapter.setState('info.connection', false);
-
-      auth = {
-        user_id: null,
-        token: null,
-        refresh_token: null
-      };
-
-      if(callback) callback(err, auth);
-    } else {
-      // connection successful
-      adapter.log.debug('Response: ' + response.statusMessage);
-
-      // connection established but auth failure
-      if(response.statusMessage === 'Unauthorized') {
-        auth = {
-          user_id: null,
-          token: null,
-          refresh_token: null
-        };
-
-        adapter.setState('info.connection', false);
-        adapter.log.debug('Deleted auth tokens.');
-        adapter.log.error('Connection works, but authorization failure (wrong password?)!');
-        if(callback) callback(err, auth);
-      } else {
-        // save tokens etc.
-        if(body && body.hasOwnProperty('sessions')
-          && body.sessions.hasOwnProperty('user_id')
-          && body.sessions.hasOwnProperty('token')
-          && body.sessions.hasOwnProperty('refresh_token')) {
-
-          auth = {
-            user_id: body.sessions.user_id,
-            token: body.sessions.token,
-            refresh_token: body.sessions.refresh_token
-          };
-
-          adapter.setState('info.connection', true);
-          adapter.log.debug('Saved auth tokens.');
-          if (callback) callback(false, auth);
-        } else {
-          adapter.log.debug('No auth data received');
-          adapter.setState('info.connection', false);
-          if (callback) callback('No auth data received');
-        }
-      }
-    }
-  });
-}
-
-// disconnect from gardena cloud (i.e. clear all tokens)
-function disconnect(callback) {
-  auth = {
-    "token": null,
-    "user_id": null,
-    "refresh_token": null
-  };
-
-  if(callback) callback(false);
-}
-
-// poll locations, devices, etc.
-function poll(callback) {
-  // first poll the locations (if the counter says we should do so)
-  if(update_locations_counter === 30) {
-    adapter.log.info('Polling locations.');
-    retrieveLocations(auth.token, auth.user_id, function (err, locations) {
-      if (err || !locations) {
-        adapter.log.error('Error retrieving the locations.')
-      } else {
-        gardenaDBConnector.updateDBLocations(locations);
-        adapter.log.info('Updated locations in the database.');
-      }
-      adapter.log.debug('Retrieved all locations.');
-      update_locations_counter = 0;
-    });
-  }
-  update_locations_counter += 1;
-
-  // poll datapoints for devices for all locations
-  adapter.getStates(gardenaDBConnector.getloc_prefix() + '*', function (err, states) {
-    if(err) {
-      adapter.log.error(err);
-      return
-    }
-    // get distinct locations
-    let locations = [];
-    for(let cloc in states) {
-      if(!locations.includes(cloc.split('.')[3])) {
-        locations.push(cloc.split('.')[3]);
-      }
-    }
-
-    // get devices for all locations
-    for(let i=0;i<locations.length;i++) {
-      retrieveDevicesFromLocation(auth.token, locations[i], function (err, devices) {
-        if (err) {
-          adapter.log.error('Could not get device from location.');
-          if (callback) callback(err);
-        } else {
-          gardenaDBConnector.updateDBDatapoints(locations[i], devices, function (err) {
-            if (callback) callback(err);
-          });
-        }
-      });
-    }
-  });
-}
-
-// create json that we have to send to the device
-function getJSONToSend(id, cmd, deviceid, callback) {
-
-  function getCmdNamespace(id) {
-    let cmd_namespace = '';
-    for(let i=0;i<id.split('.').length - 1;i++) {
-      cmd_namespace += id.split('.')[i];
-      if(i < (id.split('.').length - 2)) cmd_namespace += '.';
-    }
-    return cmd_namespace;
-  }
-
-  function getDeviceNamespace(id, deviceid) {
-    let dev_namespace = '';
-    let dev_id;
-
-    for(let i=0;i<id.split('.').length;i++) {
-      if(id.split('.')[i] === deviceid) {
-        dev_id = i;
-        break;
-      }
-    }
-
-    for(let i=0;i<dev_id+1;i++) {
-      dev_namespace += id.split('.')[i];
-      if(i < dev_id) dev_namespace += '.';
-    }
-    return dev_namespace;
-  }
-
-  function removeNamespace(id) {
-    let rest = '';
-    // remove namespace
-    for(let i = 5;i< id.split('.').length; i++) {
-      rest += id.split('.')[i];
-      if (i < id.split('.').length - 1) rest += '.';
-    }
-    return rest;
-  }
-
-  function removeFirstElement(id) {
-    let rest = '';
-    for (let i = 1; i < id.split('.').length; i++) {
-      rest += id.split('.')[i];
-      if (i < id.split('.').length - 1) rest += '.';
-    }
-
-    return rest;
-  }
-
-  function removeLastElement(id) {
-    let rest = '';
-    for(let i=0;i<id.split('.').length - 1;i++) {
-      rest += id.split('.')[i];
-      if (i < id.split('.').length - 2) rest += '.';
-    }
-
-    return rest;
-  }
-
-  function paramToDict(id, cobj) {
-    // get first element of the id
-
-    if (id.split('.').length === 1) {
-      let dict = {};
-      dict[id] = cobj.val;
-      return dict;
-    } else {
-      let dict = {};
-
-      dict[id.split('.')[0]] = paramToDict(removeFirstElement(id), cobj);
-      return dict;
-    }
-  }
-
-  let cmd_namespace = getCmdNamespace(id);
-  let dev_namespace = removeNamespace(id);
-
-  // get values for parameters from the database
-  adapter.getForeignStates(cmd_namespace + '.*', function (err, objs) {
-    let json2send = {};
-    let rest;
-
-    // add modified activator state to objs, so that paramToDict works
-    let dict = {};
-    dict[removeLastElement(id) + '.name'] = {"val": cmd};
-    objs = Object.assign({}, objs, dict);
-
-    // first find the activator state
-    for(let cobj in objs) {
-      if(cobj.split('.')[cobj.split('.').length - 1] !== 'send') {
-        // no activator state
-        rest = removeFirstElement(removeNamespace(cobj, cmd_namespace));
-
-        // merge parameters into json2send
-        let jo = paramToDict(rest, objs[cobj]);
-        json2send = deepmerge(json2send, jo);
-      }
-    }
-
-    callback(json2send);
-  });
-}
-
+// helper function for preparing the reqeust options
 function getRequestOptionsToSend(id, cmd, deviceid, locationid, callback) {
   // get category of the gardena device
   adapter.getState(adapter.namespace + '.devices.' + deviceid + '.category', function(err, category) {
@@ -517,30 +235,7 @@ function getRequestOptionsToSend(id, cmd, deviceid, locationid, callback) {
   });
 }
 
-// send a command to the gardena device
-function sendCommand(id, cmd, deviceid, locationid, callback) {
-
-  getRequestOptionsToSend(id, cmd, deviceid, locationid, function(options) {
-    let a = options;
-
-    request(options, function (err, response, jsondata) {
-      if (err) {
-        adapter.log.error('Could not send command.');
-        adapter.setState('info.connection', false);
-
-        callback(err);
-      } else {
-        adapter.log.info('Command send.');
-
-        // reset command switch to false
-        adapter.setState('devices.' + deviceid + '.commands.' + cmd + '.send', false, false);
-        callback(false);
-      }
-    });
-  });
-}
-
-// an event was triggered
+// a command was triggered
 function triggeredEvent(id, state, callback) {
 
   let deviceid = id.split('.')[3];
@@ -566,154 +261,6 @@ function triggeredEvent(id, state, callback) {
       } else {
         callback(false);
       }
-    }
-  });
-}
-
-// retrieve locations
-function retrieveLocations(token, user_id, callback) {
-  // setup the request
-  let options = {
-    url: gardena_config.baseURI + gardena_config.locationsURI + '/?user_id=' + user_id,
-    headers: {
-      "Content-Type": "application/json",
-      "X-Session": token
-    },
-    method: "GET",
-    json: true
-  };
-
-  request(options, function (err, response, jsondata) {
-    if (err) {
-      adapter.setState('info.connection', false);
-      adapter.log.error('Could not retrieve locations.');
-
-      callback(err);
-    } else {
-      callback(false, jsondata);
-    }
-  });
-}
-
-// get device device data for a location
-function retrieveDevicesFromLocation(token, location_id, callback) {
-
-  // setup request
-  let options = {
-    url: gardena_config.baseURI + gardena_config.devicesURI + '/?locationId=' + location_id,
-    headers: {
-      "Content-Type": "application/json",
-      "X-Session": token
-    },
-    method: "GET",
-    json: true
-  };
-
-  request(options, function (err, response, jsondata) {
-    if (err) {
-      adapter.setState('info.connection', false);
-      adapter.log.debug('Could not retrieve devices.');
-      callback(err);
-    } else {
-      adapter.log.info('Retrieved device data.');
-      callback(err, jsondata);
-    }
-  });
-}
-
-function setCommands_to_DB(cdev, prefix, cmd, callback) {
-
-  // check type of command
-  // 1. a property or parameter?
-  // 2. activator state
-  function getCmdType(cmd) {
-    if (cmd.hasOwnProperty('name') && cmd.name && cmd.hasOwnProperty('type') && cmd.type && cmd.hasOwnProperty('val') && cmd.val) return 1;
-    if (cmd.hasOwnProperty('cmd_desc') && cmd.cmd_desc) return 2;
-
-    return -1;
-  }
-
-  // go through all commands
-  for (let i=0;i<cmd.length;i++) {
-    switch (getCmdType(cmd[i])) {
-      case 1:
-        // oh, we have a property or parameter here
-        // create parameter
-        let desc = ((cmd[i].hasOwnProperty('desc') && cmd[i].desc) ? cmd[i].desc : 'description');
-
-        setStateEx(prefix + '.' + cmd[i].name, {
-          common: {
-            name: cmd[i].name,
-            role: 'gardena.command_parameter',
-            desc: desc,
-            write: true,
-            read: true,
-            type: cmd[i].type
-          }
-        }, cmd[i].val, true);
-
-        break;
-      case 2:
-        // create activator state
-        setStateEx(prefix + '.' + cmd[i].cmd_desc + '.send', {
-          common: {
-            name: 'send ' + cmd[i].cmd_desc,
-            role: 'gardena.command_trigger',
-            desc: 'Send command ' + cmd[i].cmd_desc + '.',
-            write: true,
-            read: true,
-            def: false,
-            type: "boolean"
-          }
-        }, false, true);
-        break;
-    }
-
-    // are there any other keys than "cmd_desc" or type that contain arrays?
-    for (let citem in cmd[i]) {
-      if (Array.isArray(cmd[i][citem]) && cmd[i][citem].length > 0) {
-        if(cmd[i].hasOwnProperty('cmd_desc') && cmd[i].cmd_desc) {
-          setCommands_to_DB(cdev, prefix + '.' + cmd[i].cmd_desc + '.' + citem, cmd[i][citem], callback)
-        } else {
-          setCommands_to_DB(cdev, prefix + '.' + citem, cmd[i][citem], callback)
-        }
-      }
-    }
-  }
-}
-
-// create set commands for device id (if not yet done)
-function createSetCommands(cdev, callback) {
-  // is there a category present?
-  if(!cdev.hasOwnProperty('category') || !cdev.category) {
-    callback(false);
-    return;
-  }
-
-  // is category known by gardena_commands.json?
-  let g_cmds = gardena_commands;
-  if(!g_cmds.hasOwnProperty(cdev.category) || !g_cmds[cdev.category]) {
-    callback(false);
-    return;
-  }
-
-  // are there any commands?
-  if(!g_cmds[cdev.category].hasOwnProperty('commands') || !g_cmds[cdev.category].commands) {
-    callback(false);
-    return;
-  }
-
-  if(!Array.isArray(g_cmds[cdev.category].commands) || !(g_cmds[cdev.category].commands.length > 0)) {
-    callback(false);
-    return;
-  }
-
-  // go recursively through commands array
-  setCommands_to_DB(cdev, 'devices.' + cdev.id + '.commands', g_cmds[cdev.category].commands, function (err) {
-    if(err) {
-      callback(err);
-    } else {
-      callback(false);
     }
   });
 }

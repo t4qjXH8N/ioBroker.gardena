@@ -28,7 +28,8 @@
 						"name": "duration",
 						"val": 1440,
 						"type": "number",
-						"desc": "ignore timer"
+						"desc": "ignore timer",
+						"write": true
 					}
 				]
 			},
@@ -36,74 +37,6 @@
 				"cmd_desc": "start_override_timer_duration",
 				"name": "start_override_timer_duration",
 				"parameters": []
-			}
-		]
-	},
-	"ic24": {
-		"request": {
-			"method": "PUT",
-			"uri": "/sg-1/devices/[deviceID]/abilities/watering/properties/[cmd]?locationId=[locationID]"
-		},
-		"commands": [
-			{
-				"cmd_desc": "watering_timer_1",
-				"properties":
-				[
-					{
-						"name": "watering_timer_1",
-						"value":
-						[
-							{
-								"name": "state",
-								"val": "manual",
-								"type": "string",
-								"desc": "type"
-							},
-							{
-								"name": "duration",
-								"val": 20,
-								"type": "number",
-								"desc": "duration"
-							},
-							{
-								"name": "valve_id",
-								"val": 1,
-								"type": "number",
-								"desc": "valve number 1"
-							}
-						]
-					}
-				]
-			},
-			{
-				"cmd_desc": "watering_timer_2",
-				"properties":
-				[
-					{
-						"name": "watering_timer_2",
-						"value":
-						[
-							{
-								"name": "state",
-								"val": "manual",
-								"type": "string",
-								"desc": "type"
-							},
-							{
-								"name": "duration",
-								"val": 20,
-								"type": "number",
-								"desc": "duration"
-							},
-							{
-								"name": "valve_id",
-								"val": 2,
-								"type": "number",
-								"desc": "valve number 2"
-							}
-						]
-					}
-				]
 			}
 		]
 	}
