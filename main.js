@@ -178,50 +178,6 @@ function main() {
   adapter.subscribeStates('info.connection');
 }
 
-// helper function for preparing the reqeust options
-function getRequestOptionsToSend(id, cmd, deviceid, locationid, callback) {
-  // get category of the gardena device
-  adapter.getState(adapter.namespace + '.devices.' + deviceid + '.category', function(err, category) {
-    if (err || !category) {
-      callback(err);
-    } else {
-      getJSONToSend(id, cmd, deviceid, function (json2send) {
-        // get URI
-        let g_cmds = gardena_commands[category.val];
-
-        if(!g_cmds.hasOwnProperty('request') || !g_cmds.request == Object) {
-          adapter.log.error('Missing request in gardena_commands.json');
-          return
-        }
-        if(!g_cmds.request.hasOwnProperty('uri') || !g_cmds.request.uri) {
-          adapter.log.error('Missing "uri" in request in gardena_commands.json');
-          return
-        }
-        if(!g_cmds.request.hasOwnProperty('method') || !g_cmds.request.method) {
-          adapter.log.error('Missing "method" in request in gardena_commands.json');
-          return
-        }
-
-        let uri = gardena_config.baseURI + g_cmds.request.uri.replace('[deviceID]', deviceid).replace('[locationID]', locationid).replace('[cmd]', cmd);
-        let method = g_cmds.request.method;
-
-        let options = {
-          url: uri,
-          headers: {
-            "Content-Type": "application/json",
-            "X-Session": auth.token
-          },
-          method: method,
-          json: json2send
-        };
-
-        callback(options);
-
-      });
-    }
-  });
-}
-
 // a command was triggered
 function triggeredEvent(id, state, callback) {
   let deviceid = id.split('.')[3];
@@ -236,7 +192,7 @@ function triggeredEvent(id, state, callback) {
     } else {
       if(state) {
         let locationid = state.val;
-        sendCommand(id, cmd, deviceid, locationid, function(err) {
+        gardenaCloudConnector.sendCommand(id, cmd, deviceid, locationid, function(err) {
           if(err) {
             adapter.log.error('Could not send command ' + command + ' for device id ' + deviceid);
             callback(true);
@@ -248,6 +204,29 @@ function triggeredEvent(id, state, callback) {
         callback(false);
       }
     }
+  });
+}
+
+// a smart command was triggered
+function triggeredSmartEvent(id, state, callback) {
+  let locationid = id.split('.')[3];
+  let deviceid = id.split('.')[4];
+
+  // get the name of the trigger state (this is equal to the command)
+  adapter.getObject(id, function(err, obj) {
+    let cmd = obj.common.name;
+
+    // get property states
+    adapter.getStates(id.split('.').slice(0, -1).join('.') + '.properties.*', function(err, states) {
+      // build the json for the http put command
+      let json = {
+        "properties": {
+          "name": cmd,
+          "values": undefined
+        }
+      }
+
+    });
   });
 }
 
