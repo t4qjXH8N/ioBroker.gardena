@@ -280,7 +280,7 @@
                   '</li>\n');
 
                 // check for properties
-                let props = ['writeable', 'unit'];
+                let props = ['writeable', 'unit', 'value'];
                 let celem;
                 for(let l=0;l<props.length;l++) {
                   celem = props[l];
@@ -289,13 +289,21 @@
 
                     if(celem === 'value') {
                       // in the case of a value we have to check the type
-                      if(typeof curelem[celem] === 'string') {
-                        $('#' + root_id + conf_seperator + data.id + ' div.collapsible-body span ul div.row div.row').first().append(
-                          '            <div class="input-field col s6">\n' +
-                          '                <input id="' + root_id + conf_seperator + data.id + conf_seperator + 'input' + conf_seperator + celem + '" type="input" value="' + curelem[celem] + '" />\n' +
-                          '                <label for="' + root_id + conf_seperator + data.id + conf_seperator + 'input' + conf_seperator + celem + '" class="translate">datapoint_value</label>\n' +
-                          '            </div>\n'
-                        );
+                      switch (typeof curelem[celem]) {
+                        case 'string':
+                          /*
+                          $('#' + root_id + conf_seperator + data.id + ' div.collapsible-body span ul div.row div.row').first().append(
+                            '            <div class="input-field col s6">\n' +
+                            '                <input id="' + root_id + conf_seperator + data.id + conf_seperator + 'input' + conf_seperator + celem + '" type="input" value="' + curelem[celem] + '" />\n' +
+                            '                <label for="' + root_id + conf_seperator + data.id + conf_seperator + 'input' + conf_seperator + celem + '" class="translate">datapoint_value</label>\n' +
+                            '            </div>\n'
+                          );
+                        */
+                          break;
+                        case 'boolean':
+                          break;
+                        case 'complex':
+                          break;
                       }
                     } else {
                       $('#' + root_id + conf_seperator + data.id + ' div.collapsible-body span ul div.row div.row').first().append(
@@ -336,7 +344,7 @@
                   gonChange(true);
                 });
             } else {
-              // DUMP DATAPOINT
+              // DUMB DATAPOINT
               let desc;
 
               if(curelem.name) {

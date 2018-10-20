@@ -173,21 +173,15 @@ function main() {
     }
   });
 
-  // TODO: some datapoints have to be subscribed (those ones with writable set to true)
+  // TODO: some datapoints have to be subscribed (those ones with writable set to true, but is no property)
   adapter.getStates('datapoints.*', function (err, states) {
     if (err) {
       adapter.log.error(err);
-    } else {
-      for(let cstate in states) {
-        adapter.getObject(cstate, function(err, obj) {
-          if(obj.common.write === true) adapter.subscribeStates(obj._id);
-        });
-      }
     }
   });
 
   // gardena subscribes to all state changes
-  adapter.subscribeStates('datapoints.*.commands.*.trigger');
+  adapter.subscribeStates('datapoints.*.trigger');
   adapter.subscribeStates('info.connection');
 }
 
