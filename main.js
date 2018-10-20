@@ -55,13 +55,16 @@ adapter.on('stateChange', function (id, state) {
   }
 
   // you can use the ack flag to detect if it is status (true) or command (false)
-  if (state && state.val && !state.ack) {
-
-    /*
+  if (state && state.val && !state.ack && id.split('.')[id.split('.').length-1] === 'trigger') {
     triggeredEvent(id, state, function (err) {
       if(err) adapter.log.error('An error occurred during trigger!')
     });
-    */
+  }
+
+  if (state && state.val && !state.ack && id.split('.')[id.split('.').length-1] === 'smart_trigger') {
+    triggeredEvent(id, state, function (err) {
+      if(err) adapter.log.error('An error occurred during trigger!')
+    });
   }
 });
 
@@ -171,13 +174,6 @@ function main() {
     }
   });
 
-  // TODO: some datapoints have to be subscribed (those ones with writable set to true, but is no property)
-  adapter.getStates('datapoints.*', function (err, states) {
-    if (err) {
-      adapter.log.error(err);
-    }
-  });
-
   // gardena subscribes to all state changes
   adapter.subscribeStates('datapoints.*.trigger');
   adapter.subscribeStates('info.connection');
@@ -229,7 +225,6 @@ function getRequestOptionsToSend(id, cmd, deviceid, locationid, callback) {
 
 // a command was triggered
 function triggeredEvent(id, state, callback) {
-
   let deviceid = id.split('.')[3];
   let cmd = id.split('.')[id.split('.').length - 2];
 
