@@ -18,7 +18,6 @@
     "url": "https://github.com/t4qjXH8N/ioBroker.gardena.git"
   },
   "dependencies": {
-    "deepmerge": "^2.1.1",
     "jsonpath": "^1.0.0",
     "request": "^2.83.0"
   },
