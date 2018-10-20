@@ -212,7 +212,12 @@
 
                     // evaluate hidden text field and mark checkboxes
                     for(let cval in gsettings.gardena_datapoints) {
-                      $('#' + cval + '_checkbox').prop('checked', 'checked')
+                      // check for SMART datapoint
+                      if(gsettings.gardena_datapoints[cval].smart) {
+                        $('#' + cval + '_smart_checkbox').prop('checked', 'checked')
+                      } else {
+                        $('#' + cval + '_checkbox').prop('checked', 'checked')
+                      }
                     }
                   } else {
                     alert('No connection');
@@ -271,13 +276,16 @@
                   '    <input id="' + root_id + conf_seperator + data.id + '_smart_checkbox_input" type="text" class="hide" />\n' +
                   '    <div class="row">\n' +
                   '        <div class="col s12">\n' +
-                  '            <label><input id="' + root_id + conf_seperator + data.id + '_smart_checkbox" type="checkbox" class="filled-in" checked="checked" />\n' +
-                  '            <span>' + data.name+ ' </span></label>\n' +
+                  '            <label><input id="' + root_id + conf_seperator + data.id + '_smart_checkbox" type="checkbox" class="filled-in" />\n' +
+                  '            <span>' + data.name + ' </span></label>\n' +
                   '        </div>\n' +
                   '        <div class="row">\n' +
                   '        </div>\n' +
                   '    </div>\n' +
                   '</li>\n');
+
+                // check if the master checkbox has to be checked
+
 
                 // check for properties
                 let props = ['writeable', 'unit', 'value'];
