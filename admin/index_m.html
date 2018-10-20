@@ -284,9 +284,6 @@
                   '    </div>\n' +
                   '</li>\n');
 
-                // check if the master checkbox has to be checked
-
-
                 // check for properties
                 let props = ['writeable', 'unit', 'value'];
                 let celem;
@@ -360,12 +357,12 @@
               } else if(curelem.resource_name) {
                 desc = curelem.resource_name;
               } else {
-                desc = citem + ' ' + i;
+                desc = citem;
               }
 
               $('#' + root_id + ' div.collapsible-body span ul').first().append(
                 '<ul class="collapsible">\n' +
-                '    <li id="' + root_id + conf_seperator + citem + conf_seperator + i + conf_seperator + curelem.id + '">\n' +
+                '    <li id="' + root_id + conf_seperator + citem + conf_seperator + curelem.id + '">\n' +
                 '        <div class="collapsible-header">' + desc +'</div>\n' +
                 '        <div class="collapsible-body">\n' +
                 '            <span>\n' +
@@ -376,7 +373,7 @@
                 '</ul>\n'
               );
 
-              createDeviceDetails(curelem, root_id + conf_seperator + citem + conf_seperator + i + conf_seperator + curelem.id, loc_dev_data);
+              createDeviceDetails(curelem, root_id + conf_seperator + citem + conf_seperator + curelem.id, loc_dev_data);
             }
 
           }

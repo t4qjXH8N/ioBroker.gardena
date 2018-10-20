@@ -56,12 +56,16 @@ adapter.on('stateChange', function (id, state) {
   if (state && state.val && !state.ack && id.split('.')[id.split('.').length-1] === 'trigger') {
     triggeredEvent(id, state, function (err) {
       if(err) adapter.log.error('An error occurred during trigger!')
+      // reset trigger
+      adapter.setState(id, false);
     });
   }
 
   if (state && state.val && !state.ack && id.split('.')[id.split('.').length-1] === 'smart_trigger') {
     triggeredSmartEvent(id, state, function (err) {
       if(err) adapter.log.error('An error occurred during smart trigger!')
+      // reset trigger
+      adapter.setState(id, false);
     });
   }
 });
@@ -163,12 +167,15 @@ function main() {
   gardenaDBConnector.setAdapter(adapter);  // set adapter instance in the DBConnector
   gardenaCloudConnector.setAdapter(adapter);  // set adapter instance in the DBConnector
 
-  syncConfig();  // sync database with config
-
   // connect to gardena smart system service and start polling
-  gardenaCloudConnector.connect(function(err, auth_data) {
+  // we need a connection for syncing the states
+  gardenaCloudConnector.connect(null, null, function(err, auth_data) {
     if(err) {
       adapter.log.error(err);
+    } else {
+      gardenaCloudConnector.poll(function (err) {
+        syncConfig(gardenaCloudConnector.get_cloud_data());  // sync database with config
+      });
     }
   });
 
@@ -205,6 +212,8 @@ function triggeredEvent(id, state, callback) {
       }
     }
   });
+
+
 }
 
 // a smart command was triggered
@@ -222,18 +231,26 @@ function triggeredSmartEvent(id, state, callback) {
       let json = {
         "properties": {
           "name": cmd,
-          "values": undefined
+          "values": {}
         }
+      };
+
+      for(let cstate in states) {
+        json.properties.values[cstate.split('.').slice(-1)[0]] = states[cstate].val;
       }
+
+      let gardena_conf = gardenaCloudConnector.get_gardena_config();
+      let supplement = id.split('.').slice(5, 6).join('/');
+      let uri = gardena_conf.baseURI + gardena_conf.devicesURI + '/' + locationid + '/' + supplement + '/'
 
     });
   });
 }
 
 // synchronize config
-function syncConfig() {
+function syncConfig(cloud_data) {
 
   // compare gardena datapoints with objects, anything changed?
   // create locations inside the datapoints structure
-  gardenaDBConnector.syncDBDatapoints();
+  gardenaDBConnector.syncDBDatapoints(cloud_data);
 }
