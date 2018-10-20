@@ -166,9 +166,7 @@ function main() {
 
   // connect to gardena smart system service and start polling
   gardenaCloudConnector.connect(function(err, auth_data) {
-    if(!err) {
-      auth = auth_data;
-    } else {
+    if(err) {
       adapter.log.error(err);
     }
   });
