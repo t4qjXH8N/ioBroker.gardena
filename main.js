@@ -60,8 +60,8 @@ adapter.on('stateChange', function (id, state) {
   }
 
   if (state && state.val && !state.ack && id.split('.')[id.split('.').length-1] === 'smart_trigger') {
-    triggeredEvent(id, state, function (err) {
-      if(err) adapter.log.error('An error occurred during trigger!')
+    triggeredSmartEvent(id, state, function (err) {
+      if(err) adapter.log.error('An error occurred during smart trigger!')
     });
   }
 });
@@ -174,6 +174,7 @@ function main() {
 
   // gardena subscribes to all state changes
   adapter.subscribeStates('datapoints.*.trigger');
+  adapter.subscribeStates('datapoints.*.smart_trigger');
   adapter.subscribeStates('info.connection');
 }
 
