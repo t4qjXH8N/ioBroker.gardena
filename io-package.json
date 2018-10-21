@@ -3,45 +3,115 @@
         "name":                     "gardena",
         "version":                  "2.0.0",
         "news": {
-          "2.0.0": {
-            "en": "Datapoints for the ioBroker-Database can be selected from the Gardena-Cloud. Generic support for Gardena devices that support RESTfull interactions."
+          "2.0.0":  {
+            "en": "Datapoints for the ioBroker-database can be selected from the Gardena web service. Generic support for Gardena devices that support RESTful interactions.",
+            "de": "Datenpunkte für die ioBroker-Datenbank können aus dem Gardena-Webservice ausgewählt werden. Generische Unterstützung für Gardena-Geräte, die REST-konforme Interaktionen unterstützen.",
+            "ru": "Datapoints для базы данных ioBroker можно выбрать из веб-службы Gardena. Общая поддержка устройств Gardena, поддерживающих взаимодействие RESTful.",
+            "pt": "Os pontos de dados para o banco de dados do ioBroker podem ser selecionados no serviço da web do Gardena. Suporte genérico para dispositivos Gardena que suportam interações RESTful.",
+            "nl": "Datapunten voor de ioBroker-database kunnen worden geselecteerd via de Gardena-webservice. Generieke ondersteuning voor Gardena-apparaten die RESTful interacties ondersteunen.",
+            "fr": "Les points de données pour la base de données ioBroker peuvent être sélectionnés à partir du service Web Gardena. Prise en charge générique des périphériques Gardena prenant en charge les interactions RESTful.",
+            "it": "I datapoint per il database ioBroker possono essere selezionati dal servizio web di Gardena. Supporto generico per dispositivi Gardena che supportano interazioni RESTful.",
+            "es": "Los puntos de datos para la base de datos ioBroker se pueden seleccionar desde el servicio web de Gardena. Soporte genérico para dispositivos Gardena que admiten interacciones REST.",
+            "pl": "Datapoint dla bazy danych ioBroker można wybrać z serwisu internetowego Gardena. Ogólna obsługa urządzeń Gardena obsługujących interakcje RESTULT."
           },
           "1.2.0": {
             "en": "Support for Smart Irrigation Control.",
-            "de": "Smarte Bewässerungssteuerung wird unterstützt.."
+            "de": "Unterstützung für intelligente Bewässerungskontrolle.",
+            "ru": "Поддержка Smart Irrigation Control.",
+            "pt": "Suporte para Smart Irrigation Control.",
+            "nl": "Ondersteuning voor Smart Irrigation Control.",
+            "fr": "Prise en charge du contrôle intelligent de l'irrigation.",
+            "it": "Supporto per Smart Irrigation Control.",
+            "es": "Soporte para el Control de Riego Inteligente.",
+            "pl": "Obsługa inteligentnego sterowania nawadnianiem."
           },
           "1.1.0": {
-            "en": "New gardena devices can be added more easily.",
-            "de": "Neue Gardena-Geräte können leichter eingebunden werden."
+            "en": "New Gardena devices can be added more easily.",
+            "de": "Neue Gardena-Geräte können einfacher hinzugefügt werden.",
+            "ru": "Новые устройства Gardena могут быть добавлены более легко.",
+            "pt": "Os novos dispositivos Gardena podem ser adicionados com mais facilidade.",
+            "nl": "Nieuwe Gardena-apparaten kunnen gemakkelijker worden toegevoegd.",
+            "fr": "Les nouveaux appareils Gardena peuvent être ajoutés plus facilement.",
+            "it": "Nuovi dispositivi Gardena possono essere aggiunti più facilmente.",
+            "es": "Los nuevos dispositivos Gardena se pueden agregar más fácilmente.",
+            "pl": "Nowe urządzenia Gardena można dodać łatwiej."
           },
           "1.0.1": {
             "en": "Readded travis/appveyor testing.",
-            "de": "Travis/appveyor wieder hinzugefügt."
+            "de": "Readed travis / anbieter test.",
+            "ru": "Тестирование с помощью Travis / appveyor.",
+            "pt": "Testes de travis / aplicadores.",
+            "nl": "Gedwongen travis / appveyor testen.",
+            "fr": "Test de travis / évaluateur corrigé.",
+            "it": "Travis readded / testing per app.",
+            "es": "Pruebas de travis / appveyor readded.",
+            "pl": "Readded travis / testing tester."
           },
           "1.0.0": {
             "en": "Added support for Admin3.",
-            "de": "Unterstützung für Admin3 hinzugefügt."
+            "de": "Unterstützung für Admin3 hinzugefügt.",
+            "ru": "Добавлена ​​поддержка Admin3.",
+            "pt": "Adicionado suporte para Admin3.",
+            "nl": "Ondersteuning toegevoegd voor Admin3.",
+            "fr": "Ajout du support pour Admin3.",
+            "it": "Aggiunto supporto per Admin3.",
+            "es": "Añadido soporte para Admin3.",
+            "pl": "Dodano obsługę Admin3."
           },
           "0.1.1": {
-            "en": "Minimum polling time is 60s.",
-            "de": "Die Poll-Dauer muss mindestens 30s betragen."
+            "en": "Minimum polling time is 60 seconds.",
+            "de": "Die Mindestabrufzeit beträgt 60 Sekunden.",
+            "ru": "Минимальное время опроса составляет 60 секунд.",
+            "pt": "O tempo mínimo de pesquisa é de 60 segundos.",
+            "nl": "Minimale ondervragingstijd is 60 seconden.",
+            "fr": "Le temps d'interrogation minimum est de 60 secondes.",
+            "it": "Il tempo di polling minimo è 60 secondi.",
+            "es": "El tiempo mínimo de sondeo es de 60 segundos.",
+            "pl": "Minimalny czas odpytywania to 60 sekund."
           },
-          "0.1.0": {
+          "0.1.0":  {
             "en": "Commands can be parametrized.",
-            "de": "Kommandos können mit Parametern gesendet werden."
+            "de": "Befehle können parametrisiert werden.",
+            "ru": "Команды могут быть параметризованы.",
+            "pt": "Comandos podem ser parametrizados.",
+            "nl": "Commando's kunnen worden geparametriseerd.",
+            "fr": "Les commandes peuvent être paramétrées.",
+            "it": "I comandi possono essere parametrizzati.",
+            "es": "Los comandos pueden ser parametrizados.",
+            "pl": "Komendy można sparametryzować."
           },
           "0.0.3": {
             "en": "Bugfix: state is only updated once.",
-            "de": "Fehlerbehebung: Zustand wird nur einmalig aktualisiert."
+            "de": "Bugfix: Zustand wird nur einmal aktualisiert.",
+            "ru": "Исправление: состояние обновляется только один раз.",
+            "pt": "Correção de bug: o estado é atualizado apenas uma vez.",
+            "nl": "Bugfix: status wordt slechts een keer bijgewerkt.",
+            "fr": "Correction: l'état n'est mis à jour qu'une fois.",
+            "it": "Bugfix: lo stato viene aggiornato solo una volta.",
+            "es": "Bugfix: el estado solo se actualiza una vez.",
+            "pl": "Bugfix: stan jest aktualizowany tylko raz."
           },
-          "0.0.2": {
+          "0.0.2":  {
             "en": "Improved connection handling. Many bugfixes.",
-            "de": "Verbesserte Verbindungsverwaltung. Viele Fehlerbehebungen."
+            "de": "Verbesserte Verbindungsbehandlung Viele Bugfixes.",
+            "ru": "Улучшена обработка соединений. Множество исправлений.",
+            "pt": "Melhor manuseio de conexão. Muitas correções de bugs.",
+            "nl": "Verbeterde verbindingsafhandeling. Veel bugfixes.",
+            "fr": "Amélioration de la gestion de la connexion. Nombreuses corrections de bugs.",
+            "it": "Migliore gestione della connessione. Molte correzioni di bug.",
+            "es": "Manejo mejorado de la conexión. Muchas correcciones de errores.",
+            "pl": "Poprawiona obsługa połączeń. Wiele poprawek."
           },
             "0.0.1": {
-              "en": "initial adapter",
-              "de": "Initiale Version",
-              "ru": "Первоначальный адаптер"
+              "en": "First version of the adapter.",
+              "de": "Erste Version des Adapters.",
+              "ru": "Первая версия адаптера.",
+              "pt": "Primeira versão do adaptador.",
+              "nl": "Eerste versie van de adapter.",
+              "fr": "Première version de l'adaptateur.",
+              "it": "Prima versione dell'adattatore.",
+              "es": "Primera versión del adaptador.",
+              "pl": "Pierwsza wersja adaptera."
             }
         },
         "title": "Gardena smart system adapter",
