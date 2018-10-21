@@ -52,7 +52,7 @@ Just install the adapter from the iobroker admin interface or fetch it from Gith
 ## Donation
 If this project help you reduce time to develop, you can give me a cup of coffee or a bottle of beer :) 
 
-[![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=CM3CX35U2DPW6)
+[![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=S3ECJZG78SH34)
 
 ## Changelog
 # 2.0.0 (21-Oct-2018)
