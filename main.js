@@ -11,8 +11,6 @@ const jsonPath = require('jsonpath');
 // adapter will be restarted automatically every time as the configuration changed, e.g system.adapter.gardena.0
 const adapter = utils.Adapter('gardena');
 
-const gardena_commands = require(__dirname + '/gardena_commands.json');  // gardena commands
-
 const gardenaCloudConnector = require(__dirname + '/lib/gardenaCloudConnector');
 const gardenaDBConnector = require(__dirname + '/lib/gardenaDBConnector');
 
@@ -213,8 +211,6 @@ function triggeredEvent(id, state, callback) {
       }
     }
   });
-
-
 }
 
 // a smart command was triggered
@@ -256,7 +252,10 @@ function syncConfig(cloud_data) {
 
   // compare gardena datapoints with objects, anything changed?
   // create locations inside the datapoints structure
-  gardenaDBConnector.syncDBDatapoints(cloud_data);
+  gardenaDBConnector.syncDBDatapoints(cloud_data, function(err) {
+    // do we have to create commands for devices?
+    gardenaDBConnector.createHTTPPostDatapointsinDB(cloud_data);
+  });
 }
 
 // this helper function returns the names from an array of ids

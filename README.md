@@ -19,7 +19,7 @@ Please note that only a few devices can be controlled at the moment. If you want
 1. Install the [GARDENA Smart System App](https://play.google.com/store/apps/details?id=com.gardena.smartgarden&hl=en) on the android phone, if not yet installed.
 2. Install an app for sniffing the traffic between the app and the web service on your phone. I like [Packet Capture](https://play.google.com/store/apps/details?id=app.greyshirts.sslcapture&hl=en).
 3. Activate the sniffer and send a command to the device using the GARDENA Smart System app.
-4. Send me the retrieved JSON via [Email](mailto:chvorholt@gmail.com) or, even better, add the commands to [gardena_commands.json](/gardena_commands.json) for yourself and open a pull request. For example, a JSON send by the Gardena app may look like this:
+4. Send me the retrieved JSON via [Email](mailto:chvorholt@gmail.com) or, even better, add the commands to [gardena_commands.json](/lib/gardena_commands.json) for yourself and open a pull request. For example, a JSON send by the Gardena app may look like this:
 
 ```json
 PUT /sg-1/devices/[deviceID]/abilities/outlet/command?locationId=[locationID] HTTP/1.1

@@ -1,9 +1,7 @@
-{
-	"mower": {
-		"request": {
-			"method": "POST",
-			"uri": "/sg-1/devices/[deviceID]/abilities/mower/command?locationId=[locationID]"
-		},
+[
+	{
+		"category": "mower",
+		"baseURI": "abilities/mower/command",
 		"commands": [
 			{
 				"cmd_desc": "park_until_next_timer",
@@ -29,6 +27,7 @@
 						"val": 1440,
 						"type": "number",
 						"desc": "ignore timer",
+						"role": "level",
 						"write": true
 					}
 				]
@@ -40,5 +39,4 @@
 			}
 		]
 	}
-}
-
+]
