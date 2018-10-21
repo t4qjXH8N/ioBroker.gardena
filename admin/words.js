@@ -155,5 +155,27 @@ systemDictionary = {
       "it": "controllo della connessione",
       "es": "verificación de conexión",
       "pl": "sprawdzanie połączenia"
+    },
+    "main settings": {
+      "en": "main settings",
+      "de": "Haupteinstellungen",
+      "ru": "Основные параметры",
+      "pt": "configurações principais",
+      "nl": "belangrijkste instellingen",
+      "fr": "Réglages principaux",
+      "it": "impostazioni principali",
+      "es": "ajustes principales",
+      "pl": "Ustawienia główne"
+    },
+    "datapoints": {
+      "en": "datapoints",
+      "de": "Datenpunkte",
+      "ru": "точки данных",
+      "pt": "Os pontos de dados",
+      "nl": "data punten",
+      "fr": "points de données",
+      "it": "datapoints",
+      "es": "puntos de datos",
+      "pl": "punkty danych"
     }
 };
