@@ -9,7 +9,7 @@ ioBroker gardena adapter
 [![Build Status](https://travis-ci.org/t4qjXH8N/ioBroker.gardena.svg?branch=master)](https://travis-ci.org/t4qjXH8N/ioBroker.gardena)
 [![Build status](https://ci.appveyor.com/api/projects/status/4gkr4kig83dhsa0h/branch/master?svg=true)](https://ci.appveyor.com/project/t4qjXH8N/iobroker-gardena/branch/master)
 
-[![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=CM3CX35U2DPW6)
+[![Donate](https://img.shields.io/badge/Donate-PayPal-green.svg)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=S3ECJZG78SH34)
 
 This is an [ioBroker](https://github.com/ioBroker/ioBroker) Adapter supporting the Gardena Smart System web service.  
 
