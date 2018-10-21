@@ -148,5 +148,47 @@
         "gardena_reconnect_interval": "300",
         "gardena_polling_interval": "600"
     },
-    "objects": []
+    "objects": [],
+    "instanceObjects": [
+    {
+      "_id": "info",
+      "type": "channel",
+      "common": {
+        "name": "Information"
+      },
+      "native": {}
+    },
+    {
+      "_id": "info.connection",
+      "type": "state",
+      "common": {
+        "name": "connected",
+        "desc": "Connected to Gardena Smart System Service?",
+        "type": "boolean",
+        "def": "false",
+        "read": "true",
+        "role": "value.info",
+        "write": "false"
+      },
+      "native": {}
+    },
+    {
+      "_id": "datapoints",
+      "type": "group",
+      "common": {
+        "name": "Datapoints",
+        "desc": "Subscribed datapoints from the Gardena cloud."
+      },
+      "native": {}
+    },
+    {
+      "_id": "locations",
+      "type": "group",
+      "common": {
+        "name": "Locations",
+        "desc": "Locations from the Gardena cloud."
+      },
+      "native": {}
+    }
+  ]
 }
