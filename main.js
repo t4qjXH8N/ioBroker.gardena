@@ -4,6 +4,7 @@
 
 // you have to require the utils module and call adapter function
 const utils =    require(__dirname + '/lib/utils'); // Get common adapter utils
+const jsonPath = require('jsonpath');
 
 // you have to call the adapter function and pass a options object
 // name has to be set and has to be equal to adapters folder name and main file name excluding extension
@@ -231,18 +232,21 @@ function triggeredSmartEvent(id, state, callback) {
       let json = {
         "properties": {
           "name": cmd,
-          "values": {}
+          "value": {}
         }
       };
 
       for(let cstate in states) {
-        json.properties.values[cstate.split('.').slice(-1)[0]] = states[cstate].val;
+        json.properties.value[cstate.split('.').slice(-1)[0]] = states[cstate].val;
       }
 
-      let gardena_conf = gardenaCloudConnector.get_gardena_config();
-      let supplement = id.split('.').slice(5, 6).join('/');
-      let uri = gardena_conf.baseURI + gardena_conf.devicesURI + '/' + locationid + '/' + supplement + '/'
+      let names = getNamesFromIDs(id.split('.'));
 
+      let gardena_conf = gardenaCloudConnector.get_gardena_config();
+      let uri = gardena_conf.baseURI + gardena_conf.devicesURI + '/' + deviceid + '/' + names.slice(5, -2).join('/') + '/properties/' + names.slice(-2, -1);
+      uri = uri + '?locationId=' + locationid;
+
+      gardenaCloudConnector.http_put(uri, json);
     });
   });
 }
@@ -253,4 +257,24 @@ function syncConfig(cloud_data) {
   // compare gardena datapoints with objects, anything changed?
   // create locations inside the datapoints structure
   gardenaDBConnector.syncDBDatapoints(cloud_data);
+}
+
+// this helper function returns the names from an array of ids
+function getNamesFromIDs(ids) {
+  let cloud_data = gardenaCloudConnector.get_cloud_data();
+
+  let names = [];
+  for(let i=0;i<ids.length;i++) {
+
+    // can we find the id?
+    let res = jsonPath.query(cloud_data, '$..[?(@.id=="' + ids[i] + '")]');
+
+    if(!res || res.length === 0) {
+      names.push(ids[i]);
+    } else {
+      names.push(res[0].name);
+    }
+  }
+
+  return names;
 }
