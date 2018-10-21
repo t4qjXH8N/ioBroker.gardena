@@ -15,7 +15,7 @@ This is an [ioBroker](https://github.com/ioBroker/ioBroker) Adapter supporting t
 
 This adapter connects to the Gardena Smart System web services. From this web service data from all devices  is retrieved and stored in ioBroker states. These states are updated in a given interval, hence the states should be up to date. At the moment it can retrieve data from all Gardena devices. Some Gardena devices can be controlled.
 
-The adapter mainly maps Gardena's RESTfull structure to ioBroker's database structure. The adapter distinguishes between "dump" and "smart" datapoints. Dump datapoints are directly mapped from Gardena's RESTfull interface to the ioBroker database. Smart datapoints are mapped in a "smart" way: If the datapoint has children that contain metadata, the metadata from these children is used to create one smart datapoint in the ioBroker database. Only smart datapoints can be writeable. If this is the case, a special datapoint is created in the ioBroker's database that can be used to trigger the command. Hence many devices should be supported in a generic way. For experts, all HTTP PUT commands should be supported by smart datapoints.    
+The adapter mainly maps Gardena's RESTful API structure to ioBroker's database structure. The adapter distinguishes between "dump" and "smart" datapoints. Dump datapoints are directly mapped from Gardena's RESTful API to the ioBroker database. Smart datapoints are mapped in a "smart" way: If the datapoint has children that contain metadata, the metadata from these children is used to create one smart datapoint in the ioBroker database. Only smart datapoints can be writeable. If this is the case, a special datapoint is created in the ioBroker's database that can be used to trigger the command. Hence many devices should be supported in a generic way. For experts, all HTTP PUT commands should be supported by smart datapoints.    
 
 There are some devices that require sending special commands that are not supported by SMART datapoints. For exports, these are commands send by the HTTP POST command. These commands have to be described in the file "gardena_commands.json" in the lib folder. At the moment it contains the commands for a Sileno mower only. Since these commands have to be revealed by monitoring the connection between the Gardena app and the Gardena cloud server, I cannot test all of them. If you have a device that is not supported and you want to contribute, you could do the following on Android devices: 
 
@@ -48,7 +48,7 @@ Accept-Language: de-DE,en-US;q=0.9
 Just install the adapter from the iobroker admin interface or fetch it from Github.
 
 ## Changelog
-# 2.0.0 (22-Oct-2018)
+# 2.0.0 (21-Oct-2018)
 - brand new interface that allows to setup a whitelist for datapoints
 - strongly reduced CPU and RAM load
 - all devices that can be controlled by HTTP PUT commands are supported
