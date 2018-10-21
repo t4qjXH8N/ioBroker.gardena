@@ -21,13 +21,17 @@
 </style>
 <!-- you have to define 2 functions in the global scope: -->
 <script type="text/javascript">
+  let gsettings;
+  let gonChange;
+  let conf_seperator = '___';
+
   // the function loadSettings has to exist ...
   function load(settings, onChange) {
     // example: select elements with id=key and class=value and insert value
     if (!settings) return;
     $('.value').each(function () {
-      var $key = $(this);
-      var id = $key.attr('id');
+      let $key = $(this);
+      let id = $key.attr('id');
       if ($key.attr('type') === 'checkbox') {
         // do not call onChange direct, because onChange could expect some arguments
         $key.prop('checked', settings[id]).change(function() {
@@ -41,27 +45,67 @@
           onChange();
         });
       }
+      gsettings = settings;
+      gonChange = onChange;
     });
-    onChange(false);
+
     M.updateTextFields();  // function Materialize.updateTextFields(); to reinitialize all the Materialize labels on the page if you are dynamically adding inputs.
+    onChange(false);
   }
+
   // ... and the function save has to exist.
   // you have to make sure the callback is called with the settings object as first param!
   function save(callback) {
     // example: select elements with class=value and build settings object
-    var obj = {};
+    let obj = {};
     $('.value').each(function () {
-      var $this = $(this);
+      let $this = $(this);
       if ($this.attr('type') === 'checkbox') {
         obj[$this.attr('id')] = $this.prop('checked');
       } else {
         obj[$this.attr('id')] = $this.val();
       }
     });
+
+    obj['gardena_datapoints'] = gsettings.gardena_datapoints;
     callback(obj);
   }
 
+  // get location data from id
+  function getLocationDetails(id, loc_data) {
+    for(let i=0;i<loc_data.length;i++) {
+      if(loc_data[i].id === id) {
+        // found location
+        return loc_data[i].name;
+      }
+    }
+  }
+
+  // get device data from id
+  function getDeviceDetails(id, dev_data) {
+    for(let i=0;i<dev_data.length;i++) {
+      if(dev_data[i].id === id) {
+        return {'name': dev_data[i].name, 'description': dev_data[i].description};
+      }
+    }
+  }
+
   $(function() {
+    let auth;
+
+    $('#btn_datapoints_select_all').on('click', function() {
+      $('#datapoints_selection input[type="checkbox"]').prop('checked', true);
+      $('#datapoints_selection input[type="checkbox"]').trigger('change');
+      gonChange(true);
+    });
+
+    $('#btn_datapoints_deselect_all').on('click', function() {
+      $('#datapoints_selection input[type="checkbox"]').prop('checked', false);
+      $('#datapoints_selection input[type="checkbox"]').trigger('change');
+      gsettings.gardena_datapoints = {};
+      gonChange(true);
+    });
+
     $('#btn_check_connection').on('click', function () {
       let active = false;
       getIsAdapterAlive(function (isAlive) {
@@ -70,15 +114,15 @@
         }
 
         if (!active) {
+          $('#datapoint_progress div').addClass('hide');
           showMessage(_('Enable adapter first'), 'Warning', 'info');
           return;
         }
 
-        let credentials =
-          '{' +
-          '"gardena_username": "' + $('#gardena_username.value').val() + '",' +
-          '"gardena_password": "' + $('#gardena_password.value').val() + '"' +
-          '}';
+        let credentials = {
+          "gardena_username": $('#gardena_username.value').val(),
+          "gardena_password": $('#gardena_password.value').val()
+        };
 
         sendTo('gardena.' + instance, 'checkConnection', credentials, function (conn_status) {
           if (conn_status === true) {
@@ -89,56 +133,411 @@
         });
       });
     });
+
+    $('#gardena_smart_datapoints').on('change', function () {
+        gsettings.gardena_datapoints = {};
+    });
+
+    $('.collapsible').collapsible();
+
+    $('a[href*="#tab-datapoints"]').on('click', function () {
+      getIsAdapterAlive(function (isAlive) {
+        let active = false;
+        if (isAlive || common.enabled) {
+          active = true;
+        }
+
+        if (!active) {
+          $('#datapoint_progress div').addClass('hide');
+          showMessage(_('Enable adapter first'), 'Warning', 'info');
+          return;
+        }
+
+        let credentials = {
+          "gardena_username": $('#gardena_username.value').val(),
+          "gardena_password": $('#gardena_password.value').val()
+        };
+
+        $('#datapoint_progress').removeClass('hide');
+        $('#datapoints_selection').addClass('hide');
+
+        $('#datapoints-locations ul').empty();
+        // connect to gardena cloud
+        sendTo('gardena.' + instance, 'connect', credentials, function (auth_data) {
+          if(!auth_data) {
+            $('#datapoint_progress div').addClass('hide');
+            showMessage(_('Authentification failed!'), 'Warning', 'info');
+
+            return;
+          }
+
+          auth = auth_data;
+
+          sendTo('gardena.' + instance, 'retrieveLocations', auth, function (locations) {
+            if(locations) {
+              for(let i=0;i<locations.locations.length;i++) {
+                $('#datapoints-locations ul').append(
+                  '<li id="' + locations.locations[i].id + '">\n' +
+                  '    <div class="collapsible-header"><i class="material-icons">home</i>' + locations.locations[i].name +'</div>\n' +
+                  '    <div class="collapsible-body"><span></span></div>\n' +
+                  '</li>\n');
+
+                // now retrieve all devices
+                sendTo('gardena.' + instance, 'retrieveDevices', {"token": auth.token, "location_id": locations.locations[i].id}, function (devices) {
+                  if(devices) {
+                    for(let j=0;j<devices.devices.length;j++) {
+                      $('#' + locations.locations[i].id + ' div.collapsible-body span').first().append(
+                        '<ul class="collapsible">\n' +
+                        '    <li id="' + locations.locations[i].id + conf_seperator + devices.devices[j].id + '">\n' +
+                        '        <div class="collapsible-header"><i class="material-icons">devices</i>' + devices.devices[j].name +'</div>\n' +
+                        '        <div class="collapsible-body">\n' +
+                        '            <span>\n' +
+                        '                <ul class="collection"></ul>\n' +
+                        '            </span>\n' +
+                        '        </div>\n' +
+                        '    </li>\n' +
+                        '</ul>\n'
+                      );
+
+                      let cdev = devices.devices[j];
+                      createDeviceDetails(cdev, locations.locations[i].id + conf_seperator + devices.devices[j].id, {'locations': locations['locations'], 'devices': devices['devices']});
+
+                      $('.collapsible').collapsible();
+                      // uncheck all checkboxes
+                      $('#datapoints-locations ul input:checkbox').prop('checked', false);
+
+                      $('#datapoint_progress').addClass('hide');
+                      $('#datapoints_selection').removeClass('hide');
+                    }
+
+                    // evaluate hidden text field and mark checkboxes
+                    for(let cval in gsettings.gardena_datapoints) {
+                      // check for SMART datapoint
+                      if(gsettings.gardena_datapoints[cval].smart) {
+                        $('#' + cval + '_smart_checkbox').prop('checked', 'checked')
+                      } else {
+                        $('#' + cval + '_checkbox').prop('checked', 'checked')
+                      }
+                    }
+                  } else {
+                    alert('No connection');
+                  }
+                });
+              }
+            } else {
+              alert('No connection');
+            }
+
+          });
+        });
+      });
+    });
   });
+
+  function createDeviceDetails(json, root_id, loc_dev_data) {
+
+    for (let citem in json) {
+      if (!json.hasOwnProperty(citem)) continue;
+
+      if (Array.isArray(json[citem])) {
+        for (let i = 0; i < json[citem].length; i++) {
+          let curelem = json[citem][i];
+
+          // check if curelem is an object
+          if(typeof curelem === 'object') {
+            // check if we have a smart datapoint here
+            if(curelem.hasOwnProperty('id') && curelem.hasOwnProperty('name')
+              && curelem.hasOwnProperty('value') && $('#gardena_smart_datapoints').prop('checked')) {
+                // SMART DATAPOINT
+                let data = {};
+
+                data['id'] = curelem.id;
+                data['name'] = curelem.name;
+                data['smart'] = true;
+                data['location'] = getLocationDetails(root_id.split(conf_seperator)[0], loc_dev_data['locations']);
+                data['device'] = getDeviceDetails(root_id.split(conf_seperator)[1], loc_dev_data['devices']);
+
+                $('#' + root_id + ' div.collapsible-body span ul').first().append(
+                  '<ul class="collapsible light-blue lighten-4">\n' +
+                  '    <li id="' + root_id + conf_seperator + data.id + '" class="light-blue lighten-4">\n' +
+                  '        <div class="collapsible-header light-blue lighten-4">' + data.name + ' (SMART)</div>\n' +
+                  '        <div class="collapsible-body">\n' +
+                  '            <span>\n' +
+                  '                <ul class="collection"></ul>\n' +
+                  '            </span>\n' +
+                  '        </div>\n' +
+                  '    </li>\n' +
+                  '</ul>\n'
+                );
+
+                // create the master checkbox
+                $('#' + root_id + conf_seperator + data.id + ' div.collapsible-body span ul').first().append(
+                  '<li class="collection-item">\n' +
+                  '    <input id="' + root_id + conf_seperator + data.id + '_smart_checkbox_input" type="text" class="hide" />\n' +
+                  '    <div class="row">\n' +
+                  '        <div class="col s12">\n' +
+                  '            <label><input id="' + root_id + conf_seperator + data.id + '_smart_checkbox" type="checkbox" class="filled-in" />\n' +
+                  '            <span>' + data.name + ' </span></label>\n' +
+                  '        </div>\n' +
+                  '        <div class="row">\n' +
+                  '        </div>\n' +
+                  '    </div>\n' +
+                  '</li>\n');
+
+                // check for properties
+                let props = ['writeable', 'unit', 'value'];
+                let celem;
+                for(let l=0;l<props.length;l++) {
+                  celem = props[l];
+                  if(curelem.hasOwnProperty(celem)) {
+                    data[celem] = curelem[celem];
+
+                    if(celem === 'value') {
+                      // in the case of a value we have to check the type
+                      switch (typeof curelem[celem]) {
+                        case 'string':
+                          /*
+                          $('#' + root_id + conf_seperator + data.id + ' div.collapsible-body span ul div.row div.row').first().append(
+                            '            <div class="input-field col s6">\n' +
+                            '                <input id="' + root_id + conf_seperator + data.id + conf_seperator + 'input' + conf_seperator + celem + '" type="input" value="' + curelem[celem] + '" />\n' +
+                            '                <label for="' + root_id + conf_seperator + data.id + conf_seperator + 'input' + conf_seperator + celem + '" class="translate">datapoint_value</label>\n' +
+                            '            </div>\n'
+                          );
+                        */
+                          break;
+                        case 'boolean':
+                          break;
+                        case 'complex':
+                          break;
+                      }
+                    } else {
+                      $('#' + root_id + conf_seperator + data.id + ' div.collapsible-body span ul div.row div.row').first().append(
+                        '            <div class="input-field col s6">\n' +
+                        '                <input id="' + root_id + conf_seperator + data.id + conf_seperator + 'input' + conf_seperator + celem + '" type="input" value="' + curelem[celem] +'" />\n' +
+                        '                <label for="' + root_id + conf_seperator + data.id + conf_seperator + 'input' + conf_seperator + celem + '" class="translate">datapoint_' + celem + '</label>\n' +
+                        '            </div>\n'
+                      );
+                    }
+                  }
+                }
+
+                // add a role
+                $('#' + root_id + conf_seperator + data.id + ' div.collapsible-body span ul div.row div.row').first().append(
+                  '            <div class="input-field col s6">\n' +
+                  '                <input id="' + root_id + conf_seperator + data.id + '_smart_checkbox_role" type="input" value="state" />\n' +
+                  '                <label for="' + root_id + conf_seperator + data.id + '_smart_checkbox_role" class="translate">datapoint_role</label>\n' +
+                  '            </div>\n');
+
+                // add data to hidden input field
+                $('#' + root_id + conf_seperator + data.id + '_smart_checkbox_input').val(JSON.stringify(data));
+
+                // add action for smart datapoints
+                $('#' + root_id + conf_seperator + data.id + '_smart_checkbox').change(function() {
+                  let cval = $('#' + this.id + '_input').val();
+                  let data = JSON.parse(cval);
+
+                  data['role'] = $('#' + this.id + '_role').val();
+                  data['desc'] = $('#' + this.id + '_desc').val();
+                  data['location'] = getLocationDetails(root_id.split(conf_seperator)[0], loc_dev_data['locations']);
+                  data['device'] = getDeviceDetails(root_id.split(conf_seperator)[1], loc_dev_data['devices']);
+
+                  if(cval && this.checked) {
+                    gsettings.gardena_datapoints[this.id.replace('_smart_checkbox', '')] = data;
+                  } else {
+                    delete gsettings.gardena_datapoints[this.id.replace('_smart_checkbox', '')];
+                  }
+                  gonChange(true);
+                });
+            } else {
+              // DUMB DATAPOINT
+              let desc;
+
+              if(curelem.name) {
+                desc = curelem.name;
+              } else if(curelem.resource_name) {
+                desc = curelem.resource_name;
+              } else {
+                desc = citem;
+              }
+
+              $('#' + root_id + ' div.collapsible-body span ul').first().append(
+                '<ul class="collapsible">\n' +
+                '    <li id="' + root_id + conf_seperator + citem + conf_seperator + curelem.id + '">\n' +
+                '        <div class="collapsible-header">' + desc +'</div>\n' +
+                '        <div class="collapsible-body">\n' +
+                '            <span>\n' +
+                '                <ul class="collection"></ul>\n' +
+                '            </span>\n' +
+                '        </div>\n' +
+                '    </li>\n' +
+                '</ul>\n'
+              );
+
+              createDeviceDetails(curelem, root_id + conf_seperator + citem + conf_seperator + curelem.id, loc_dev_data);
+            }
+
+          }
+        }
+      } else if (typeof json[citem] === 'object') {
+        $('#' + root_id + ' div.collapsible-body span ul').first().append(
+          '<ul class="collapsible">\n' +
+          '    <li id="' + root_id + conf_seperator + citem + '">\n' +
+          '        <div class="collapsible-header">' + citem +'</div>\n' +
+          '        <div class="collapsible-body">\n' +
+          '            <span>\n' +
+          '                <ul class="collection"></ul>\n' +
+          '            </span>\n' +
+          '        </div>\n' +
+          '    </li>\n' +
+          '</ul>\n'
+        );
+
+        createDeviceDetails(json[citem], root_id + conf_seperator + citem, loc_dev_data);
+      } else {
+        // create a node
+        let val; // value of the checkbox contains meta data for the state (parseable JSON)
+
+        if($('#gardena_smart_datapoints').prop('checked')) {
+          val = {
+            "name": citem,
+            "type": typeof json[citem]
+          };
+        } else {
+          val = {
+            "name": citem,
+            "type": typeof json[citem]
+          };
+        }
+
+        $('#' + root_id + ' div.collapsible-body span ul').first().append(
+          '<li class="collection-item">\n' +
+          '    <input id="' + root_id + conf_seperator + citem + '_checkbox_input" type="text" class="hide" />\n' +
+          '    <div class="row">\n' +
+          '        <div class="col s12">\n' +
+          '            <label><input id="' + root_id + conf_seperator + citem + '_checkbox" type="checkbox" class="filled-in" checked="checked" />\n' +
+          '            <span>' + citem + ' (value=' + json[citem] + ')</span></label>\n' +
+          '        </div>\n' +
+          '        <div class="row">\n' +
+          '            <div class="input-field col s6">\n' +
+          '                <input id="' + root_id + conf_seperator + citem + '_checkbox_role" type="input" value="state" />\n' +
+          '                <label for="' + root_id + conf_seperator + citem + '_checkbox_role" class="translate">datapoint_role</label>\n' +
+          '            </div>\n' +
+          '            <div class="input-field col s6">\n' +
+          '                <input id="' + root_id + conf_seperator + citem + '_checkbox_desc" type="input" value="' + citem + '" />\n' +
+          '                <label for="' + root_id + conf_seperator + citem + '_checkbox_desc" class="translate">datapoint_description</label>\n' +
+          '            </div>\n' +
+          '        </div>\n' +
+          '    </div>\n' +
+          '</li>\n');
+
+        $('#' + root_id + conf_seperator + citem + '_checkbox_input').val(JSON.stringify(val));
+
+        // add action for dump datapoints
+        $('#' + root_id + conf_seperator + citem + '_checkbox').change(function() {
+            let cval = $('#' + this.id + '_input').val();
+            let data = JSON.parse(cval);
+
+            data['role'] = $('#' + this.id + '_role').val();
+            data['desc'] = $('#' + this.id + '_desc').val();
+            data['location'] = getLocationDetails(root_id.split(conf_seperator)[0], loc_dev_data['locations']);
+            data['device'] = getDeviceDetails(root_id.split(conf_seperator)[1], loc_dev_data['devices']);
+
+            if(cval && this.checked) {
+              gsettings.gardena_datapoints[this.id.replace('_checkbox', '')] = data;
+            } else {
+              delete gsettings.gardena_datapoints[this.id.replace('_checkbox', '')];
+            }
+            gonChange(true);
+        });
+      }
+    }
+  }
+
 </script>
 </head>
 <body>
-<!-- you have to put your config page in a div with id adapter-container -->
-<div class="m adapter-container">
-    <div class="row">
-        <!-- Forms are the standard way to receive user inputted data.
-     Learn more http://materializecss.com/forms.html-->
-        <div class="row">
-            <div class="input-field col s6">
-                <img src="gardena.png" class="logo">
-            </div>
-        </div>
-        <div class="row">
-            <div class="input-field col s12 m6 l4">
-                <input class="value" id="gardena_username" type="text">
-                <label for="gardena_username" class="translate">gardena_username</label>
-            </div>
-        </div>
-        <div class="row">
-            <div class="input-field col s12 m6 l4">
-                <input class="value" id="gardena_password" type="password">
-                <label for="gardena_password" class="translate">gardena_password</label>
-            </div>
-        </div>
-        <div class="row">
-            <div class="input-field col s12 m6 l4">
-                <input class="value" id="gardena_reconnect_interval" type="text">
-                <label for="gardena_reconnect_interval" class="translate">gardena_reconnect_interval</label>
-            </div>
-        </div>
-        <div class="row">
-            <div class="input-field col s12 m6 l4">
-                <input class="value" id="gardena_polling_interval" type="text">
-                <label for="gardena_polling_interval" class="translate">gardena_polling_interval</label>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col s12 m8 l4">
-                <a id="btn_check_connection" class="waves-effect waves-light btn translate">check_connection</a>
-            </div>
-        </div>
+    <!-- you have to put your config page in a div with id adapter-container -->
+    <div class="m adapter-container">
         <div class="row">
             <div class="col s12">
-                <p class="translate">on save adapter restarts with new config immediately</p>
+                <ul class="tabs">
+                    <li class="tab col s5"><a href="#tab-main"    class="translate active">main settings</a></li>
+                    <li class="tab col s5"><a href="#tab-datapoints" class="translate">datapoints</a></li>
+                </ul>
+            </div>
+            <div id="tab-main" class="col s12 page">
+                <!-- Forms are the standard way to receive user inputted data.
+                 Learn more http://materializecss.com/forms.html-->
+                <div class="row">
+                    <div class="input-field col s6">
+                        <img src="gardena.png" class="logo">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="input-field col s12 m6 l4">
+                        <input class="value" id="gardena_username" type="text">
+                        <label for="gardena_username" class="translate active">gardena_username</label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="input-field col s12 m6 l4">
+                        <input class="value" id="gardena_password" type="password">
+                        <label for="gardena_password" class="translate active">gardena_password</label>
+                    </div>
+                    <div class="col s6 m3 l2">
+                        <a id="btn_check_connection" class="waves-effect waves-light btn translate">check_connection</a>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="input-field col s6 m3 l2">
+                        <input class="value" id="gardena_reconnect_interval" type="text">
+                        <label for="gardena_reconnect_interval" class="translate active">gardena_reconnect_interval</label>
+                    </div>
+                    <div class="input-field col s6 m3 l2">
+                        <input class="value" id="gardena_polling_interval" type="text">
+                        <label for="gardena_polling_interval" class="translate active">gardena_polling_interval</label>
+                    </div>
+                    <div class="input-field col s6 m3 l2">
+                        <input class="value" id="gardena_update_locations_counter" type="text">
+                        <label for="gardena_update_locations_counter" class="translate active">gardena_update_locations_counter</label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col s12 m6 l2">
+                        <input class="value" id="gardena_smart_datapoints" type="checkbox">
+                        <label for="gardena_smart_datapoints" class="translate active">gardena_smart_datapoints</label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col s12">
+                        <p class="translate">on save adapter restarts with new config immediately</p>
+                    </div>
+                </div>
+            </div>
+            <div id="tab-datapoints" class="col s12 m12 l12 page">
+                <div id="datapoint_progress" class="progress">
+                    <div class="indeterminate" id="datapoint_progress_indeterminate"></div>
+                </div>
+                <div id="datapoints_selection" class="hide">
+                    <div class="row s3 m3 l3">
+                        <div class="col">
+                            <a class="waves-effect waves-light btn translate" id="btn_datapoints_select_all">select_all</a>
+                        </div>
+                        <div class="col">
+                            <a class="waves-effect waves-light btn translate" id="btn_datapoints_deselect_all">deselect_all</a>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col s12 m12 l12">
+                            <div id="datapoints-locations">
+                                <ul class="collapsible"></ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-</div>
 </body>
 
 </html>

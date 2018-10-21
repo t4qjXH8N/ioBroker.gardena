@@ -1,0 +1,42 @@
+[
+	{
+		"category": "mower",
+		"baseURI": "abilities/mower/command",
+		"commands": [
+			{
+				"cmd_desc": "park_until_next_timer",
+				"name": "park_until_next_timer",
+				"parameters": []
+			},
+			{
+				"cmd_desc": "park_until_further_notice",
+				"name": "park_until_further_notice",
+				"parameters": []
+			},
+			{
+				"cmd_desc": "start_resume_schedule",
+				"name": "start_resume_schedule",
+				"parameters": []
+			},
+			{
+				"cmd_desc": "start_override_timer",
+				"name": "start_override_timer",
+				"parameters": [
+					{
+						"name": "duration",
+						"val": 1440,
+						"type": "number",
+						"desc": "ignore timer",
+						"role": "level",
+						"write": true
+					}
+				]
+			},
+			{
+				"cmd_desc": "start_override_timer_duration",
+				"name": "start_override_timer_duration",
+				"parameters": []
+			}
+		]
+	}
+]

@@ -10,41 +10,47 @@ This is an [ioBroker](https://github.com/ioBroker/ioBroker) Adapter supporting t
 
 ## Description
 
-This adapter connects to the Gardena Smart System web services. From this web service data from all devices  is retrieved and stored in ioBroker states. These states are updated in a given interval, hence the states should be up to date. At the moment it can retrieve data from all gardena devices, but only some devices can be controlled.
+This adapter connects to the Gardena Smart System web services. From this web service data from all devices  is retrieved and stored in ioBroker states. These states are updated in a given interval, hence the states should be up to date. At the moment it can retrieve data from all Gardena devices. Some Gardena devices can be controlled.
 
-Gardena devices can be controlled by setting the value of so called _command states_ to true. This triggers an event and a command is send to the Gardena Smart System service.
+The adapter mainly maps Gardena's RESTfull structure to ioBroker's database structure. The adapter distinguishes between "dump" and "smart" datapoints. Dump datapoints are directly mapped from Gardena's RESTfull interface to the ioBroker database. Smart datapoints are mapped in a "smart" way: If the datapoint has children that contain metadata, the metadata from these children is used to create one smart datapoint in the ioBroker database. Only smart datapoints can be writeable. If this is the case, a special datapoint is created in the ioBroker's database that can be used to trigger the command. Hence many devices should be supported in a generic way. For experts, all HTTP PUT commands should be supported by smart datapoints.    
 
-Please note that only a few devices can be controlled at the moment. If you want to add commands to control a device, please follow the steps below. Here, we assume that a mobile running Android is used for this. 
+There are some devices that require sending special commands that are not supported by SMART datapoints. For exports, these are commands send by the HTTP POST command. These commands have to be described in the file "gardena_commands.json" in the lib folder. At the moment it contains the commands for a Sileno mower only. Since these commands have to be revealed by monitoring the connection between the Gardena app and the Gardena cloud server, I cannot test all of them. If you have a device that is not supported and you want to contribute, you could do the following on Android devices: 
 
 1. Install the [GARDENA Smart System App](https://play.google.com/store/apps/details?id=com.gardena.smartgarden&hl=en) on the android phone, if not yet installed.
 2. Install an app for sniffing the traffic between the app and the web service on your phone. I like [Packet Capture](https://play.google.com/store/apps/details?id=app.greyshirts.sslcapture&hl=en).
 3. Activate the sniffer and send a command to the device using the GARDENA Smart System app.
-4. Send me the retrieved JSON via [Email](mailto:chvorholt@gmail.com) or, even better, add the commands to [gardena_commands.json](/gardena_commands.json) for yourself and open a pull request. For example, a JSON send by the Gardena app may look like this:
+4. Send me the retrieved JSON via [Email](mailto:chvorholt@gmail.com) or, even better, add the commands to [gardena_commands.json](/lib/gardena_commands.json) for yourself and open a pull request. For example, a JSON send by the Gardena app may look like this:
 
 ```json
-PUT /sg-1/devices/[deviceID]/abilities/outlet/command?locationId=[locationID] HTTP/1.1
-
-{"name":"manual_override","parameters":{"manual_override":"open","duration":2}}HTTP/1.1 204 No Content
-Date: Mon, 1 Jul 2018 01:55:22 GMT
+POST /sg-1/devices/[DeviceID]/abilities/mower/command?locationId=[LocationID] HTTP/1.1
+Host: sg-api.dss.husqvarnagroup.net
 Connection: keep-alive
-X-Rate-Limit-Limit: 6300
-X-Rate-Limit-Remaining: 6296
-X-Rate-Limit-Reset: 2
+Content-Length: 52
+Origin: https://sg-api.dss.husqvarnagroup.net
+Content-Type: application/json; charset=UTF-8
+Accept: application/json, text/javascript, */*; q=0.01
+Authorization-Provider: husqvarna
+X-Requested-With: XMLHttpRequest
+Referer: https://sg-api.dss.husqvarnagroup.net/sg-1/index/android/
+Accept-Encoding: gzip, deflate
+Accept-Language: de-DE,en-US;q=0.9
 
-PUT /sg-1/devices/[deviceID]/abilities/outlet/properties/button_manual_override_time?locationId=[locationID] HTTP/1.1
-
-{"properties":{"name":"button_manual_override_time","value":2,"timestamp":"2018-07-1T04:33:09.122Z","at_bound":null,"unit":"minutes","writeable":true,"supported_values":[],"ability":"[abilityID]"}}HTTP/1.1 204 No Content
-Date: Mon, 1 Jul 2018 01:55:24 GMT
-Connection: keep-alive
-X-Rate-Limit-Limit: 6300
-X-Rate-Limit-Remaining: 6296
-X-Rate-Limit-Reset: 1)
+{
+  "name": "park_until_further_notice",
+  "parameters": {}
+}
 ```
 
 ## Installation
-Just install the adapter in the iobroker admin interface or fetch it from Github.
+Just install the adapter from the iobroker admin interface or fetch it from Github.
 
 ## Changelog
+# 2.0.0 (22-Oct-2018)
+- brand new interface that allows to setup a whitelist for datapoints
+- strongly reduced CPU and RAM load
+- all devices that can be controlled by HTTP PUT commands are supported
+- some preparations for adding the adapter to the ioBroker repository in the future
+
 # 1.2.0 (05-Aug-2018)
 - support for Gardena [smart irrigation control](https://www.gardena.com/int/products/smart/smart-system/pim94995109/967669901/)
 
