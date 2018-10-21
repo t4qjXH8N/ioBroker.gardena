@@ -1,8 +1,11 @@
 {
     "common": {
         "name":                     "gardena",
-        "version":                  "1.2.0",
+        "version":                  "2.0.0",
         "news": {
+          "2.0.0": {
+            "en": "Datapoints for the ioBroker-Database can be selected from the Gardena-Cloud. Generic support for Gardena devices that support RESTfull interactions."
+          },
           "1.2.0": {
             "en": "Support for Smart Irrigation Control.",
             "de": "Smarte Bewässerungssteuerung wird unterstützt.."

@@ -53,7 +53,7 @@ adapter.on('stateChange', function (id, state) {
 
   // you can use the ack flag to detect if it is status (true) or command (false)
   if (state && state.val && !state.ack && id.split('.')[id.split('.').length-1] === 'trigger') {
-    triggeredEvent(id, state, function (err) {
+    triggeredEvent(id, function (err) {
       if(err) adapter.log.error('An error occurred during trigger!')
       // reset trigger
       adapter.setState(id, false);
@@ -61,7 +61,7 @@ adapter.on('stateChange', function (id, state) {
   }
 
   if (state && state.val && !state.ack && id.split('.')[id.split('.').length-1] === 'smart_trigger') {
-    triggeredSmartEvent(id, state, function (err) {
+    triggeredSmartEvent(id, function (err) {
       if(err) adapter.log.error('An error occurred during smart trigger!')
       // reset trigger
       adapter.setState(id, false);
@@ -185,36 +185,43 @@ function main() {
 }
 
 // a command was triggered
-function triggeredEvent(id, state, callback) {
-  let deviceid = id.split('.')[3];
-  let cmd = id.split('.')[id.split('.').length - 2];
+function triggeredEvent(id, callback) {
+  let locationid = id.split('.').slice(3, 4);
+  let deviceid = id.split('.')[4];
 
-  // ok, we have the device id, get the location id
-  adapter.getState('devices.' + deviceid + '.locationid', function(err, state) {
-    if(err) {
-      adapter.log.error('Could not get location ID for device ' + deviceid);
+  // get the name of the trigger state (this is equal to the command)
+  adapter.getObject(id, function(err, obj) {
+    let cmd = obj.common.name;
 
-      callback(err);
-    } else {
-      if(state) {
-        let locationid = state.val;
-        gardenaCloudConnector.sendCommand(id, cmd, deviceid, locationid, function(err) {
-          if(err) {
-            adapter.log.error('Could not send command ' + command + ' for device id ' + deviceid);
-            callback(true);
-          } else {
-            callback(false);
-          }
-        });
-      } else {
-        callback(false);
+    // collect parameters
+    // get property states
+    adapter.getStates(id.split('.').slice(0, -1).join('.') + '.parameters.*', function(err, states) {
+      // build the json for the http put command
+      let json = {
+        "name": cmd,
+        "parameters": {}
+      };
+
+      for(let cstate in states) {
+        json.parameters[cstate.split('.').slice(-1)[0]] = states[cstate].val;
       }
-    }
+
+      let names = getNamesFromIDs(id.split('.'));
+
+      let gardena_conf = gardenaCloudConnector.get_gardena_config();
+      let uri = gardena_conf.baseURI + gardena_conf.devicesURI + '/' + deviceid + '/' + names.slice(5, -2).join('/')
+      uri = uri + '?locationId=' + locationid;
+
+      gardenaCloudConnector.http_post(uri, json, function(err) {
+        if(callback) callback(err);
+      });
+    });
+
   });
 }
 
 // a smart command was triggered
-function triggeredSmartEvent(id, state, callback) {
+function triggeredSmartEvent(id, callback) {
   let locationid = id.split('.')[3];
   let deviceid = id.split('.')[4];
 
@@ -242,7 +249,9 @@ function triggeredSmartEvent(id, state, callback) {
       let uri = gardena_conf.baseURI + gardena_conf.devicesURI + '/' + deviceid + '/' + names.slice(5, -2).join('/') + '/properties/' + names.slice(-2, -1);
       uri = uri + '?locationId=' + locationid;
 
-      gardenaCloudConnector.http_put(uri, json);
+      gardenaCloudConnector.http_put(uri, json, function(err) {
+        if(callback) callback(err);
+      });
     });
   });
 }

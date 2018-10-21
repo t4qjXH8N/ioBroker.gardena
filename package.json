@@ -1,6 +1,6 @@
 {
   "name": "iobroker.gardena",
-  "version": "1.2.0",
+  "version": "2.0.0",
   "description": "Gardena Smart System Adapter",
   "author": {
     "name": "Christian Vorholt",
