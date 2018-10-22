@@ -57,6 +57,7 @@ If this project help you reduce time to develop, you can give me a cup of coffee
 ## Changelog
 # 2.0.1 (22-Oct-2018)
 - fixed problem where some SMART states were not updated
+- improved role guessing
 
 # 2.0.0 (21-Oct-2018)
 - brand new interface that allows to setup a whitelist for datapoints
