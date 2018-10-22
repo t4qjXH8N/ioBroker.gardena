@@ -47,6 +47,9 @@ Accept-Language: de-DE,en-US;q=0.9
 ## Installation
 Just install the adapter from the iobroker admin interface or fetch it from Github.
 
+## Donation
+If this project help you reduce time to develop, you can give me a cup of coffee or a bottle of beer via PayPal(chvorholt@gmail.com) :-)  
+
 ## Changelog
 # 2.0.1 (22-Oct-2018)
 - fixed problem where some SMART states were not updated
