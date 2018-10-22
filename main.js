@@ -277,7 +277,7 @@ function getNamesFromIDs(ids) {
     // can we find the id?
     let res = jsonPath.query(cloud_data, '$..[?(@.id=="' + ids[i] + '")]');
 
-    if(!res || res.length === 0) {
+    if(!res || !Array.isArray(res) || res.length === 0) {
       names.push(ids[i]);
     } else {
       names.push(res[0].name);
