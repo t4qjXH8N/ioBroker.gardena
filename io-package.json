@@ -155,7 +155,7 @@
         "enabled":                  false,
         "extIcon":                  "https://raw.githubusercontent.com/t4qjXH8N/ioBroker.gardena/master/admin/gardena.png",
         "keywords":                 ["gardena", "gardena smart system"],
-        "readme":                   "https://github.com/t4qjXH8N/ioBroker.gardena/master/README.md",
+        "readme":                   "https://github.com/t4qjXH8N/ioBroker.gardena/blob/master/README.md",
         "loglevel":                 "info",
         "type":                     "hardware",
         "restartAdapters":          [],
