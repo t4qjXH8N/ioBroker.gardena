@@ -55,6 +55,9 @@ If this project help you reduce time to develop, you can give me a cup of coffee
 [![paypal](https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif)](https://www.paypal.com/cgi-bin/webscr?cmd=_s-xclick&hosted_button_id=S3ECJZG78SH34)
 
 ## Changelog
+# 2.0.1 (22-Oct-2018)
+- fixed problem where some SMART states were not updated
+
 # 2.0.0 (21-Oct-2018)
 - brand new interface that allows to setup a whitelist for datapoints
 - strongly reduced CPU and RAM load

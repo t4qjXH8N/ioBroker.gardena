@@ -1,10 +1,10 @@
 {
   "name": "iobroker.gardena",
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Gardena Smart System Adapter",
   "author": {
     "name": "Christian Vorholt",
-    "email": "chvorholt@mail.com"
+    "email": "chvorholt@gmail.com"
   },
   "homepage": "https://github.com/t4qjXH8N/ioBroker.gardena",
   "readme": "https://github.com/t4qjXH8N/ioBroker.gardena/master/README.md",

@@ -1,8 +1,20 @@
 {
     "common": {
         "name":                     "gardena",
-        "version":                  "2.0.0",
+        "version":                  "2.0.1",
+        "license":                  "MIT",
         "news": {
+          "2.0.1": {
+            "en": "fixed problem where some SMART states were not updated",
+            "de": "Problem behoben, bei dem einige SMART-Zustände nicht aktualisiert wurden",
+            "ru": "исправлена ​​проблема, когда некоторые SMART-состояния не обновлялись",
+            "pt": "problema fixo em que alguns estados SMART não foram atualizados",
+            "nl": "opgelost probleem waar sommige SMART-staten niet werden bijgewerkt",
+            "fr": "problème résolu où certains états SMART n'étaient pas mis à jour",
+            "it": "problema risolto in cui alcuni stati SMART non sono stati aggiornati",
+            "es": "Se solucionó el problema donde algunos estados SMART no se actualizaron",
+            "pl": "naprawiono problem, w którym niektóre SMART stany nie były aktualizowane"
+          },
           "2.0.0":  {
             "en": "Datapoints for the ioBroker-database can be selected from the Gardena web service. Generic support for Gardena devices that support RESTful interactions.",
             "de": "Datenpunkte für die ioBroker-Datenbank können aus dem Gardena-Webservice ausgewählt werden. Generische Unterstützung für Gardena-Geräte, die REST-konforme Interaktionen unterstützen.",
@@ -116,12 +128,26 @@
         },
         "title": "Gardena smart system adapter",
         "titleLang": {
-          "en": "Gardena smart system adapter",
-          "de": "Gardena Smart System Adapter"
-        },        
-        "desc": {
-          "en": "ioBroker Gardena Smart System Adapter",
-          "de": "ioBroker Gardena Smart System Adapter"
+          "en": "an adapter for the Gardena Smart System webservice",
+          "de": "ein Adapter für den Gardena Smart System Webservice",
+          "ru": "адаптер для веб-службы Gardena Smart System",
+          "pt": "um adaptador para o webservice do Gardena Smart System",
+          "nl": "een adapter voor de webservice van Gardena Smart System",
+          "fr": "un adaptateur pour le webservice Gardena Smart System",
+          "it": "un adattatore per il webservice Gardena Smart System",
+          "es": "Un adaptador para el servicio web Gardena Smart System.",
+          "pl": "adapter do usługi sieciowej Gardena Smart System"
+        },
+        "desc":  {
+          "en": "This adapter can retrieve data from and send commands to Gardena Smart System webservice.",
+          "de": "Dieser Adapter kann Daten vom Gardena Smart System Webservice abrufen und senden.",
+          "ru": "Этот адаптер может извлекать данные из и отправлять команды в веб-сервис Gardena Smart System.",
+          "pt": "Este adaptador pode recuperar dados e enviar comandos para o serviço Web do Gardena Smart System.",
+          "nl": "Met deze adapter kunnen gegevens worden opgehaald en opdrachten worden verzonden naar de webservice van Gardena Smart System.",
+          "fr": "Cet adaptateur peut extraire des données et envoyer des commandes au service Web Gardena Smart System.",
+          "it": "Questo adattatore può recuperare dati e inviare comandi al servizio web Gardena Smart System.",
+          "es": "Este adaptador puede recuperar datos y enviar comandos al servicio web Gardena Smart System.",
+          "pl": "Ten adapter może pobierać dane zi wysyłać polecenia do usługi sieciowej Gardena Smart System."
         },
         "platform":                 "Javascript/Node.js",
         "mode":                     "daemon",
