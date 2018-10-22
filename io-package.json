@@ -157,7 +157,7 @@
         "keywords":                 ["gardena", "gardena smart system"],
         "readme":                   "https://github.com/t4qjXH8N/ioBroker.gardena/blob/master/README.md",
         "loglevel":                 "info",
-        "type":                     "hardware",
+        "type":                     "garden",
         "restartAdapters":          [],
         "materialize":              true,
         "messagebox":               true,
