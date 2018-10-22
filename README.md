@@ -51,35 +51,35 @@ Just install the adapter from the iobroker admin interface or fetch it from Gith
 If this project help you reduce time to develop, you can give me a cup of coffee or a bottle of beer via PayPal(chvorholt@gmail.com) :-)  
 
 ## Changelog
-# 2.0.1 (22-Oct-2018)
+#### 2.0.1 (22-Oct-2018)
 - fixed problem where some SMART states were not updated
 - improved role guessing
 
-# 2.0.0 (21-Oct-2018)
+#### 2.0.0 (21-Oct-2018)
 - brand new interface that allows to setup a whitelist for datapoints
 - strongly reduced CPU and RAM load
 - all devices that can be controlled by HTTP PUT commands are supported
 - some preparations for adding the adapter to the ioBroker repository in the future
 
-# 1.2.0 (05-Aug-2018)
+#### 1.2.0 (05-Aug-2018)
 - support for Gardena [smart irrigation control](https://www.gardena.com/int/products/smart/smart-system/pim94995109/967669901/)
 
-# 1.1.0 (23-Jul-2019)
+#### 1.1.0 (23-Jul-2019)
 - new devices can be added more easily 
 
-# 1.0.1 (17-Jul-2018)
+#### 1.0.1 (17-Jul-2018)
 - readded travis/appveyor testing
 
-# 1.0.0 (17-Jul-2018)
+#### 1.0.0 (17-Jul-2018)
 - added support for Admin3
 
-# 0.1.1 (15-Jul-2018)
+#### 0.1.1 (15-Jul-2018)
 - minimum polling time is 60 seconds
 
-# 0.1.0 (22-Apr-2018)
+#### 0.1.0 (22-Apr-2018)
 - commands can be parametrized by designated states
 
-# 0.0.3 (08-Apr-2018)
+#### 0.0.3 (08-Apr-2018)
 - bugfix: state was updated only once
 
 ## Disclaimer
