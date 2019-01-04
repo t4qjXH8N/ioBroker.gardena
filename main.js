@@ -9,7 +9,7 @@ const jsonPath = require('jsonpath');
 // you have to call the adapter function and pass a options object
 // name has to be set and has to be equal to adapters folder name and main file name excluding extension
 // adapter will be restarted automatically every time as the configuration changed, e.g system.adapter.gardena.0
-const adapter = utils.Adapter('gardena');
+const adapter = new utils.Adapter('gardena');
 
 const gardenaCloudConnector = require(__dirname + '/lib/gardenaCloudConnector');
 const gardenaDBConnector = require(__dirname + '/lib/gardenaDBConnector');

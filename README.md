@@ -48,7 +48,7 @@ Accept-Language: de-DE,en-US;q=0.9
 Just install the adapter from the iobroker admin interface or fetch it from Github.
 
 ## Donation
-If this project help you reduce time to develop, you can give me a cup of coffee or a bottle of beer via PayPal(chvorholt@gmail.com) :-)  
+If this project helped you to reduce developing time, you can give me a cup of coffee or a bottle of beer via PayPal(chvorholt@gmail.com) :-)  
 
 ## Changelog
 #### 2.0.1 (22-Oct-2018)
@@ -88,7 +88,7 @@ I am not in any association with Gardena or Husqvarna.
 ## License
 The MIT License (MIT)
 
-Copyright (c) 2017-2018 Christian Vorholt <chvorholt@gmail.com>
+Copyright (c) 2017-2019 Christian Vorholt <chvorholt@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
