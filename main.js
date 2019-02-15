@@ -9,33 +9,47 @@ const jsonPath = require('jsonpath');
 // you have to call the adapter function and pass a options object
 // name has to be set and has to be equal to adapters folder name and main file name excluding extension
 // adapter will be restarted automatically every time as the configuration changed, e.g system.adapter.gardena.0
-const adapter = new utils.Adapter('gardena');
+let adapter;
+function startAdapter(options) {
+  options = options || {};
+  Object.assign(options, {
+    name: "gardena",
+    install: adapter_install,
+    unload: adapter_unload,
+    objectChange: adapter_objectChange,
+    stateChange: adapter_stateChange,
+    ready: adapter_ready,
+    message: adapter_message
+  });
+  adapter = new utils.Adapter(options);
+
+  return adapter;
+}
 
 const gardenaCloudConnector = require(__dirname + '/lib/gardenaCloudConnector');
 const gardenaDBConnector = require(__dirname + '/lib/gardenaDBConnector');
 
 // triggered when the adapter is installed
-adapter.on('install', function () {
-});
+const adapter_install = function () {};
 
 // is called when the adapter shuts down - callback has to be called under any circumstances!
-adapter.on('unload', function (callback) {
+const adapter_unload = function (callback) {
   try {
     adapter.log.info('cleaned everything up...');
       callback();
   } catch (e) {
       callback();
   }
-});
+};
 
 // is called if a subscribed object changes
-adapter.on('objectChange', function (id, obj) {
+const adapter_objectChange = function (id, obj) {
   // Warning, obj can be null if it was deleted
   adapter.log.debug('objectChange ' + id + ' ' + JSON.stringify(obj));
-});
+};
 
 // is called if a subscribed state changes
-adapter.on('stateChange', function (id, state) {
+const adapter_stateChange = function (id, state) {
   // Warning, state can be null if it was deleted
   adapter.log.debug('stateChange ' + id + ' ' + JSON.stringify(state));
 
@@ -54,7 +68,7 @@ adapter.on('stateChange', function (id, state) {
   // you can use the ack flag to detect if it is status (true) or command (false)
   if (state && state.val && !state.ack && id.split('.')[id.split('.').length-1] === 'trigger') {
     triggeredEvent(id, function (err) {
-      if(err) adapter.log.error('An error occurred during trigger!')
+      if(err) adapter.log.error('An error occurred during trigger!');
       // reset trigger
       adapter.setState(id, false);
     });
@@ -62,21 +76,21 @@ adapter.on('stateChange', function (id, state) {
 
   if (state && state.val && !state.ack && id.split('.')[id.split('.').length-1] === 'smart_trigger') {
     triggeredSmartEvent(id, function (err) {
-      if(err) adapter.log.error('An error occurred during smart trigger!')
+      if(err) adapter.log.error('An error occurred during smart trigger!');
       // reset trigger
       adapter.setState(id, false);
     });
   }
-});
+};
 
 // is called when databases are connected and adapter received configuration.
-adapter.on('ready', function () {
+const adapter_ready = function () {
   // start main function
   main();
-});
+};
 
 // messages
-adapter.on('message', function (obj) {
+const adapter_message = function (obj) {
   let wait = false;
   let credentials;
   let msg;
@@ -157,7 +171,7 @@ adapter.on('message', function (obj) {
   }
 
   return true;
-});
+};
 
 // main function
 function main() {
@@ -285,4 +299,12 @@ function getNamesFromIDs(ids) {
   }
 
   return names;
+}
+
+// If started as allInOne/compact mode => return function to create instance
+if (module && module.parent) {
+  module.exports = startAdapter;
+} else {
+  // or start the instance directly
+  startAdapter();
 }

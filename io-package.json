@@ -1,9 +1,21 @@
 {
     "common": {
         "name":                     "gardena",
-        "version":                  "2.0.1",
+        "version":                  "2.1.0",
         "license":                  "MIT",
         "news": {
+          "2.1.0":  {
+            "en": "Added support for compact mode.",
+            "de": "Unterstützung für den Kompaktmodus hinzugefügt.",
+            "ru": "Добавлена ​​поддержка компактного режима.",
+            "pt": "Adicionado suporte para o modo compacto.",
+            "nl": "Ondersteuning toegevoegd voor de compacte modus.",
+            "fr": "Ajout du support pour le mode compact.",
+            "it": "Aggiunto il supporto per la modalità compatta.",
+            "es": "Añadido soporte para el modo compacto.",
+            "pl": "Dodano obsługę trybu kompaktowego.",
+            "zh-cn": "增加了对紧凑模式的支持。"
+          },
           "2.0.1": {
             "en": "fixed problem where some SMART states were not updated",
             "de": "Problem behoben, bei dem einige SMART-Zustände nicht aktualisiert wurden",
@@ -114,17 +126,17 @@
             "es": "Manejo mejorado de la conexión. Muchas correcciones de errores.",
             "pl": "Poprawiona obsługa połączeń. Wiele poprawek."
           },
-            "0.0.1": {
-              "en": "First version of the adapter.",
-              "de": "Erste Version des Adapters.",
-              "ru": "Первая версия адаптера.",
-              "pt": "Primeira versão do adaptador.",
-              "nl": "Eerste versie van de adapter.",
-              "fr": "Première version de l'adaptateur.",
-              "it": "Prima versione dell'adattatore.",
-              "es": "Primera versión del adaptador.",
-              "pl": "Pierwsza wersja adaptera."
-            }
+          "0.0.1": {
+            "en": "First version of the adapter.",
+            "de": "Erste Version des Adapters.",
+            "ru": "Первая версия адаптера.",
+            "pt": "Primeira versão do adaptador.",
+            "nl": "Eerste versie van de adapter.",
+            "fr": "Première version de l'adaptateur.",
+            "it": "Prima versione dell'adattatore.",
+            "es": "Primera versión del adaptador.",
+            "pl": "Pierwsza wersja adaptera."
+          }
         },
         "title": "Gardena Smart System",
         "titleLang": {
@@ -153,6 +165,7 @@
         "mode":                     "daemon",
         "icon":                     "gardena.png",
         "enabled":                  false,
+        "compact":                  true,
         "extIcon":                  "https://raw.githubusercontent.com/t4qjXH8N/ioBroker.gardena/master/admin/gardena.png",
         "keywords":                 ["gardena", "gardena smart system"],
         "readme":                   "https://github.com/t4qjXH8N/ioBroker.gardena/blob/master/README.md",

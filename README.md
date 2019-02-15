@@ -51,6 +51,9 @@ Just install the adapter from the iobroker admin interface or fetch it from Gith
 If this project helped you to reduce developing time, you can give me a cup of coffee or a bottle of beer via PayPal(chvorholt@gmail.com) :-)  
 
 ## Changelog
+#### 2.1.0 (15-Feb-2019)
+- added support for compact mode
+
 #### 2.0.1 (22-Oct-2018)
 - fixed problem where some SMART states were not updated
 - improved role guessing
