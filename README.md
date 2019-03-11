@@ -1,7 +1,7 @@
 ![Logo](admin/gardena.png)
 ioBroker gardena adapter
 =================
-[![NPM version](http://img.shields.io/npm/v/iobroker.gardena.svg)](https://www.npmjs.com/package/iobroker.gardena)
+![Number of Installations](http://iobroker.live/badges/gardena-installed.svg) ![Number of Installations](http://iobroker.live/badges/gardena-stable.svg) [![NPM version](http://img.shields.io/npm/v/iobroker.gardena.svg)](https://www.npmjs.com/package/iobroker.gardena)
 [![Downloads](https://img.shields.io/npm/dm/iobroker.gardena.svg)](https://www.npmjs.com/package/iobroker.gardena)
 
 [![NPM](https://nodei.co/npm/iobroker.gardena.png?downloads=true)](https://nodei.co/npm/iobroker.gardena/)
