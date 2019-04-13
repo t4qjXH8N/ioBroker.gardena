@@ -179,7 +179,7 @@
     },
     {
       "_id": "datapoints",
-      "type": "group",
+      "type": "",
       "common": {
         "name": "Datapoints",
         "desc": "Subscribed datapoints from the Gardena cloud."
@@ -188,7 +188,7 @@
     },
     {
       "_id": "locations",
-      "type": "group",
+      "type": "",
       "common": {
         "name": "Locations",
         "desc": "Locations from the Gardena cloud."
