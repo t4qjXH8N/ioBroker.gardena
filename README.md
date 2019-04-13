@@ -55,7 +55,7 @@ Please note that in adapter versions greater than 2.0.0 ALL data points are opt-
 If this project helped you to reduce developing time, you can give me a cup of coffee or a bottle of beer via PayPal(chvorholt@gmail.com) :-)  
 
 ## Changelog
-#### 2.1.0 (15-Feb-2019)
+#### 2.1.0 (13-Apr-2019)
 - added support for compact mode
 
 #### 2.0.2 (13-Apr-2019)
