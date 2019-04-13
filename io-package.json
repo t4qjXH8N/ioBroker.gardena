@@ -4,6 +4,18 @@
         "version":                  "2.1.0",
         "license":                  "MIT",
         "news": {
+          "2.0.2": {
+            "en": "unnecessary user groups are no longer created",
+            "de": "unnötige Benutzergruppen werden nicht mehr erstellt",
+            "ru": "ненужные группы пользователей больше не создаются",
+            "pt": "grupos de usuários desnecessários não são mais criados",
+            "nl": "onnodige gebruikersgroepen worden niet langer aangemaakt",
+            "fr": "les groupes d'utilisateurs inutiles ne sont plus créés",
+            "it": "i gruppi di utenti non necessari non vengono più creati",
+            "es": "grupos de usuarios innecesarios ya no se crean",
+            "pl": "niepotrzebne grupy użytkowników nie są już tworzone",
+            "zh-cn": "不再创建不必要的用户组"
+          },
           "2.1.0":  {
             "en": "Added support for compact mode.",
             "de": "Unterstützung für den Kompaktmodus hinzugefügt.",
@@ -103,39 +115,6 @@
             "it": "I comandi possono essere parametrizzati.",
             "es": "Los comandos pueden ser parametrizados.",
             "pl": "Komendy można sparametryzować."
-          },
-          "0.0.3": {
-            "en": "Bugfix: state is only updated once.",
-            "de": "Bugfix: Zustand wird nur einmal aktualisiert.",
-            "ru": "Исправление: состояние обновляется только один раз.",
-            "pt": "Correção de bug: o estado é atualizado apenas uma vez.",
-            "nl": "Bugfix: status wordt slechts een keer bijgewerkt.",
-            "fr": "Correction: l'état n'est mis à jour qu'une fois.",
-            "it": "Bugfix: lo stato viene aggiornato solo una volta.",
-            "es": "Bugfix: el estado solo se actualiza una vez.",
-            "pl": "Bugfix: stan jest aktualizowany tylko raz."
-          },
-          "0.0.2":  {
-            "en": "Improved connection handling. Many bugfixes.",
-            "de": "Verbesserte Verbindungsbehandlung Viele Bugfixes.",
-            "ru": "Улучшена обработка соединений. Множество исправлений.",
-            "pt": "Melhor manuseio de conexão. Muitas correções de bugs.",
-            "nl": "Verbeterde verbindingsafhandeling. Veel bugfixes.",
-            "fr": "Amélioration de la gestion de la connexion. Nombreuses corrections de bugs.",
-            "it": "Migliore gestione della connessione. Molte correzioni di bug.",
-            "es": "Manejo mejorado de la conexión. Muchas correcciones de errores.",
-            "pl": "Poprawiona obsługa połączeń. Wiele poprawek."
-          },
-          "0.0.1": {
-            "en": "First version of the adapter.",
-            "de": "Erste Version des Adapters.",
-            "ru": "Первая версия адаптера.",
-            "pt": "Primeira versão do adaptador.",
-            "nl": "Eerste versie van de adapter.",
-            "fr": "Première version de l'adaptateur.",
-            "it": "Prima versione dell'adattatore.",
-            "es": "Primera versión del adaptador.",
-            "pl": "Pierwsza wersja adaptera."
           }
         },
         "title": "Gardena Smart System",
@@ -213,7 +192,7 @@
     },
     {
       "_id": "datapoints",
-      "type": "group",
+      "type": "",
       "common": {
         "name": "Datapoints",
         "desc": "Subscribed datapoints from the Gardena cloud."
@@ -222,7 +201,7 @@
     },
     {
       "_id": "locations",
-      "type": "group",
+      "type": "",
       "common": {
         "name": "Locations",
         "desc": "Locations from the Gardena cloud."
