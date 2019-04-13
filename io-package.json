@@ -4,18 +4,6 @@
         "version":                  "2.1.0",
         "license":                  "MIT",
         "news": {
-          "2.0.2": {
-            "en": "unnecessary user groups are no longer created",
-            "de": "unnötige Benutzergruppen werden nicht mehr erstellt",
-            "ru": "ненужные группы пользователей больше не создаются",
-            "pt": "grupos de usuários desnecessários não são mais criados",
-            "nl": "onnodige gebruikersgroepen worden niet langer aangemaakt",
-            "fr": "les groupes d'utilisateurs inutiles ne sont plus créés",
-            "it": "i gruppi di utenti non necessari non vengono più creati",
-            "es": "grupos de usuarios innecesarios ya no se crean",
-            "pl": "niepotrzebne grupy użytkowników nie są już tworzone",
-            "zh-cn": "不再创建不必要的用户组"
-          },
           "2.1.0":  {
             "en": "Added support for compact mode.",
             "de": "Unterstützung für den Kompaktmodus hinzugefügt.",
@@ -27,6 +15,18 @@
             "es": "Añadido soporte para el modo compacto.",
             "pl": "Dodano obsługę trybu kompaktowego.",
             "zh-cn": "增加了对紧凑模式的支持。"
+          },
+          "2.0.2": {
+            "en": "unnecessary user groups are no longer created",
+            "de": "unnötige Benutzergruppen werden nicht mehr erstellt",
+            "ru": "ненужные группы пользователей больше не создаются",
+            "pt": "grupos de usuários desnecessários não são mais criados",
+            "nl": "onnodige gebruikersgroepen worden niet langer aangemaakt",
+            "fr": "les groupes d'utilisateurs inutiles ne sont plus créés",
+            "it": "i gruppi di utenti non necessari non vengono più creati",
+            "es": "grupos de usuarios innecesarios ya no se crean",
+            "pl": "niepotrzebne grupy użytkowników nie są już tworzone",
+            "zh-cn": "不再创建不必要的用户组"
           },
           "2.0.1": {
             "en": "fixed problem where some SMART states were not updated",
