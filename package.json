@@ -1,6 +1,6 @@
 {
   "name": "iobroker.gardena",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "description": "Gardena Smart System",
   "author": {
     "name": "Christian Vorholt",
@@ -23,7 +23,7 @@
     "@iobroker/adapter-core": "^1.0.3"
   },
   "devDependencies": {
-    "gulp": "^3.9.1",
+    "gulp": "^4.0.0",
     "mocha": "^4.1.0",
     "chai": "^4.1.2",
     "@iobroker/testing": "^1.1.10"
