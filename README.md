@@ -53,6 +53,7 @@ If this project helped you to reduce developing time, you can give me a cup of c
 ## Changelog
 #### 2.0.2 (13-Apr-2019)
 - unnecessary user groups are no longer created 
+- updated grub dependency
 
 #### 2.0.1 (22-Oct-2018)
 - fixed problem where some SMART states were not updated
