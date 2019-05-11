@@ -1,10 +1,22 @@
 {
     "common": {
         "name":                     "gardena",
-        "version":                  "2.1.0",
+        "version":                  "2.1.1",
         "license":                  "MIT",
         "news": {
-          "2.1.0":  {
+          "2.1.1": {
+            "en": "command states set to writeable",
+            "de": "Befehlszustände auf beschreibbar gesetzt",
+            "ru": "состояния команд установлены на запись",
+            "pt": "estados de comando definidos como graváveis",
+            "nl": "commandostaten ingesteld op beschrijfbaar",
+            "fr": "états de commande réglés en écriture",
+            "it": "stati di comando impostati su scrivibili",
+            "es": "estados de comando configurados en escritura",
+            "pl": "stan poleceń ustawiony na zapisywalny",
+            "zh-cn": "命令状态设置为可写"
+          },
+          "2.1.0": {
             "en": "Added support for compact mode.",
             "de": "Unterstützung für den Kompaktmodus hinzugefügt.",
             "ru": "Добавлена ​​поддержка компактного режима.",
@@ -49,72 +61,6 @@
             "it": "I datapoint per il database ioBroker possono essere selezionati dal servizio web di Gardena. Supporto generico per dispositivi Gardena che supportano interazioni RESTful.",
             "es": "Los puntos de datos para la base de datos ioBroker se pueden seleccionar desde el servicio web de Gardena. Soporte genérico para dispositivos Gardena que admiten interacciones REST.",
             "pl": "Datapoint dla bazy danych ioBroker można wybrać z serwisu internetowego Gardena. Ogólna obsługa urządzeń Gardena obsługujących interakcje RESTULT."
-          },
-          "1.2.0": {
-            "en": "Support for Smart Irrigation Control.",
-            "de": "Unterstützung für intelligente Bewässerungskontrolle.",
-            "ru": "Поддержка Smart Irrigation Control.",
-            "pt": "Suporte para Smart Irrigation Control.",
-            "nl": "Ondersteuning voor Smart Irrigation Control.",
-            "fr": "Prise en charge du contrôle intelligent de l'irrigation.",
-            "it": "Supporto per Smart Irrigation Control.",
-            "es": "Soporte para el Control de Riego Inteligente.",
-            "pl": "Obsługa inteligentnego sterowania nawadnianiem."
-          },
-          "1.1.0": {
-            "en": "New Gardena devices can be added more easily.",
-            "de": "Neue Gardena-Geräte können einfacher hinzugefügt werden.",
-            "ru": "Новые устройства Gardena могут быть добавлены более легко.",
-            "pt": "Os novos dispositivos Gardena podem ser adicionados com mais facilidade.",
-            "nl": "Nieuwe Gardena-apparaten kunnen gemakkelijker worden toegevoegd.",
-            "fr": "Les nouveaux appareils Gardena peuvent être ajoutés plus facilement.",
-            "it": "Nuovi dispositivi Gardena possono essere aggiunti più facilmente.",
-            "es": "Los nuevos dispositivos Gardena se pueden agregar más fácilmente.",
-            "pl": "Nowe urządzenia Gardena można dodać łatwiej."
-          },
-          "1.0.1": {
-            "en": "Readded travis/appveyor testing.",
-            "de": "Readed travis / anbieter test.",
-            "ru": "Тестирование с помощью Travis / appveyor.",
-            "pt": "Testes de travis / aplicadores.",
-            "nl": "Gedwongen travis / appveyor testen.",
-            "fr": "Test de travis / évaluateur corrigé.",
-            "it": "Travis readded / testing per app.",
-            "es": "Pruebas de travis / appveyor readded.",
-            "pl": "Readded travis / testing tester."
-          },
-          "1.0.0": {
-            "en": "Added support for Admin3.",
-            "de": "Unterstützung für Admin3 hinzugefügt.",
-            "ru": "Добавлена ​​поддержка Admin3.",
-            "pt": "Adicionado suporte para Admin3.",
-            "nl": "Ondersteuning toegevoegd voor Admin3.",
-            "fr": "Ajout du support pour Admin3.",
-            "it": "Aggiunto supporto per Admin3.",
-            "es": "Añadido soporte para Admin3.",
-            "pl": "Dodano obsługę Admin3."
-          },
-          "0.1.1": {
-            "en": "Minimum polling time is 60 seconds.",
-            "de": "Die Mindestabrufzeit beträgt 60 Sekunden.",
-            "ru": "Минимальное время опроса составляет 60 секунд.",
-            "pt": "O tempo mínimo de pesquisa é de 60 segundos.",
-            "nl": "Minimale ondervragingstijd is 60 seconden.",
-            "fr": "Le temps d'interrogation minimum est de 60 secondes.",
-            "it": "Il tempo di polling minimo è 60 secondi.",
-            "es": "El tiempo mínimo de sondeo es de 60 segundos.",
-            "pl": "Minimalny czas odpytywania to 60 sekund."
-          },
-          "0.1.0":  {
-            "en": "Commands can be parametrized.",
-            "de": "Befehle können parametrisiert werden.",
-            "ru": "Команды могут быть параметризованы.",
-            "pt": "Comandos podem ser parametrizados.",
-            "nl": "Commando's kunnen worden geparametriseerd.",
-            "fr": "Les commandes peuvent être paramétrées.",
-            "it": "I comandi possono essere parametrizzati.",
-            "es": "Los comandos pueden ser parametrizados.",
-            "pl": "Komendy można sparametryzować."
           }
         },
         "title": "Gardena Smart System",

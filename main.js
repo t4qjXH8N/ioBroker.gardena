@@ -223,7 +223,7 @@ function triggeredEvent(id, callback) {
       let names = getNamesFromIDs(id.split('.'));
 
       let gardena_conf = gardenaCloudConnector.get_gardena_config();
-      let uri = gardena_conf.baseURI + gardena_conf.devicesURI + '/' + deviceid + '/' + names.slice(5, -2).join('/')
+      let uri = gardena_conf.baseURI + gardena_conf.devicesURI + '/' + deviceid + '/' + names.slice(5, -2).join('/');
       uri = uri + '?locationId=' + locationid;
 
       gardenaCloudConnector.http_post(uri, json, function(err) {
