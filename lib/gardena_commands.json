@@ -38,5 +38,58 @@
 				"parameters": []
 			}
 		]
+	},
+    {
+        "category": "sensor",
+        "baseURI": "abilities/sensor/command",
+        "commands": [
+            {
+          "cmd_desc": "measure_ambient_temperature",
+          "name": "measure_ambient_temperature",
+          "parameters": []
+        },
+        {
+          "cmd_desc": "measure_light",
+          "name": "measure_light",
+          "parameters": []
+        },
+        {
+          "cmd_desc": "measure_soil_humidity",
+          "name": "measure_soil_humidity",
+          "parameters": []
+        }
+      ]
+    }, {
+	"category": "outlet",
+	"baseURI": "abilities/outlet/command",
+	"commands": [
+		{
+			"cmd_desc": "manual_override",
+			"name": "manual_override",
+			"parameters": [
+				{
+					"name": "manual_override",
+					"val": "open",
+					"type": "string",
+					"desc": "open valve",
+					"role": "switch",
+					"write": true
+				},
+				{
+					"name": "duration",
+					"val": 1440,
+					"type": "number",
+					"desc": "ignore timer",
+					"role": "level",
+					"write": true
+				}
+			]
+		},
+		{
+			"cmd_desc": "cancel_override",
+			"name": "cancel_override",
+			"parameters": []
+		}
+	]
 	}
 ]

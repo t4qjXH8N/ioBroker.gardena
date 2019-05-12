@@ -1,9 +1,21 @@
 {
     "common": {
         "name":                     "gardena",
-        "version":                  "2.1.1",
+        "version":                  "2.2.0",
         "license":                  "MIT",
         "news": {
+          "2.2.0":  {
+            "en": "added support for water outlet",
+            "de": "Unterstützung für Wasseraustritt hinzugefügt",
+            "ru": "добавлена ​​поддержка выхода воды",
+            "pt": "adicionado suporte para saída de água",
+            "nl": "extra ondersteuning voor waterafvoer",
+            "fr": "support supplémentaire pour la sortie d'eau",
+            "it": "aggiunto supporto per l'uscita dell'acqua",
+            "es": "soporte añadido para la salida de agua",
+            "pl": "dodano obsługę wylotu wody",
+            "zh-cn": "增加了对出水口的支持"
+          },
           "2.1.1": {
             "en": "command states set to writeable",
             "de": "Befehlszustände auf beschreibbar gesetzt",
