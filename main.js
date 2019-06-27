@@ -6,6 +6,8 @@
 const utils = require('@iobroker/adapter-core'); // Get common adapter utils
 const jsonPath = require('jsonpath');
 
+const trigger_poll_state = 'trigger_poll';  // state for triggering a poll
+
 // you have to call the adapter function and pass a options object
 // name has to be set and has to be equal to adapters folder name and main file name excluding extension
 // adapter will be restarted automatically every time as the configuration changed, e.g system.adapter.gardena.0
@@ -63,6 +65,13 @@ const adapter_stateChange = function (id, state) {
     } else {
       gardenaCloudConnector.reconnect();
     }
+  }
+  // a poll was manually triggered
+  if(id && state && id === 'gardena.' + adapter.instance + '.' + trigger_poll_state && state.val === true) {
+    gardenaCloudConnector.poll(function (err) {
+      adapter.setState(trigger_poll_state, false, false); // reset trigger state
+      adapter.log.debug('A poll was triggered manually.');
+    });
   }
 
   // you can use the ack flag to detect if it is status (true) or command (false)
@@ -196,6 +205,7 @@ function main() {
   adapter.subscribeStates('datapoints.*.trigger');
   adapter.subscribeStates('datapoints.*.smart_trigger');
   adapter.subscribeStates('info.connection');
+  adapter.subscribeStates(trigger_poll_state)
 }
 
 // a command was triggered
