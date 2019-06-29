@@ -20,7 +20,7 @@ The adapter mainly maps Gardena's RESTful API structure to ioBroker's database s
 
 ## Examples
 
-For some examples please have a look at the [Wiki](https://github.com/t4qjXH8N/ioBroker.gardena/Wiki)
+For some examples please have a look at the [Wiki](https://github.com/t4qjXH8N/ioBroker.gardena/wiki)
 
 ## Installation
 Just install the adapter from the iobroker admin interface or fetch it from Github.
