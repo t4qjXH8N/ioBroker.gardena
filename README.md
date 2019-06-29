@@ -18,33 +18,6 @@ This adapter connects to the Gardena Smart System web services. From this web se
 
 The adapter mainly maps Gardena's RESTful API structure to ioBroker's database structure. The adapter distinguishes between "dump" and "smart" data points. Dump data points are directly mapped from Gardena's RESTful API to the ioBroker database. Smart data points are mapped in a "smart" way: If the data point has children that contain metadata, the metadata from these children is used to create one smart data point in the ioBroker database. Only smart data points can be writeable. If this is the case, a special data point is created in the ioBroker's database that can be used to trigger the command. Hence many devices should be supported in a generic way. For experts, all HTTP PUT commands should be supported by smart data points.    
 
-There are some devices that require sending special commands that are not supported by SMART data points. For exports, these are commands send by the HTTP POST command. These commands have to be described in the file "gardena_commands.json" in the lib folder. At the moment it contains the commands for a Sileno mower only. Since these commands have to be revealed by monitoring the connection between the Gardena app and the Gardena cloud server, I cannot test all of them. If you have a device that is not supported and you want to contribute, you could do the following on Android devices: 
-
-1. Install the [GARDENA Smart System App](https://play.google.com/store/apps/details?id=com.gardena.smartgarden&hl=en) on the android phone, if not yet installed.
-2. Install an app for sniffing the traffic between the app and the web service on your phone. I like [Packet Capture](https://play.google.com/store/apps/details?id=app.greyshirts.sslcapture&hl=en).
-3. Activate the sniffer and send a command to the device using the GARDENA Smart System app.
-4. Send me the retrieved JSON via [Email](mailto:chvorholt@gmail.com) or, even better, add the commands to [gardena_commands.json](/lib/gardena_commands.json) for yourself and open a pull request. For example, a JSON send by the Gardena app may look like this:
-
-```json
-POST /sg-1/devices/[DeviceID]/abilities/mower/command?locationId=[LocationID] HTTP/1.1
-Host: sg-api.dss.husqvarnagroup.net
-Connection: keep-alive
-Content-Length: 52
-Origin: https://sg-api.dss.husqvarnagroup.net
-Content-Type: application/json; charset=UTF-8
-Accept: application/json, text/javascript, */*; q=0.01
-Authorization-Provider: husqvarna
-X-Requested-With: XMLHttpRequest
-Referer: https://sg-api.dss.husqvarnagroup.net/sg-1/index/android/
-Accept-Encoding: gzip, deflate
-Accept-Language: de-DE,en-US;q=0.9
-
-{
-  "name": "park_until_further_notice",
-  "parameters": {}
-}
-```
-
 ## Installation
 Just install the adapter from the iobroker admin interface or fetch it from Github.
 
