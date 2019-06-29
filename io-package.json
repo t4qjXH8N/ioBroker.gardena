@@ -1,9 +1,21 @@
 {
     "common": {
         "name":                     "gardena",
-        "version":                  "2.2.0",
+        "version":                  "2.3.0",
         "license":                  "MIT",
         "news": {
+          "2.3.0": {
+            "en": "a poll can be triggered manually by a state",
+            "de": "Eine Abfrage kann manuell durch einen Status ausgelöst werden",
+            "ru": "опрос может быть инициирован государством вручную",
+            "pt": "uma enquete pode ser acionada manualmente por um estado",
+            "nl": "een peiling kan handmatig door een staat worden getriggerd",
+            "fr": "un sondage peut être déclenché manuellement par un état",
+            "it": "un sondaggio può essere attivato manualmente da uno stato",
+            "es": "una encuesta puede ser activada manualmente por un estado",
+            "pl": "ankieta może zostać wywołana ręcznie przez stan",
+            "zh-cn": "民意调查可以由州手动触发"
+          },
           "2.2.0":  {
             "en": "added support for water outlet",
             "de": "Unterstützung für Wasseraustritt hinzugefügt",
@@ -163,6 +175,20 @@
       "common": {
         "name": "Locations",
         "desc": "Locations from the Gardena cloud."
+      },
+      "native": {}
+    },
+    {
+      "_id": "trigger_poll",
+      "type": "state",
+      "common": {
+        "name": "poll",
+        "desc": "Setting to true triggers a poll.",
+        "type": "boolean",
+        "def": "false",
+        "read": "true",
+        "write": "true",
+        "role": "button"
       },
       "native": {}
     }

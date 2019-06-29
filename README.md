@@ -56,6 +56,9 @@ Please note that in adapter versions greater than 2.0.0 ALL data points are opt-
 If this project helped you to reduce developing time, you can give me a cup of coffee or a bottle of beer via PayPal(chvorholt@gmail.com) :-)  
 
 ## Changelog
+#### 2.3.0 (27-Jun-2019)
+- a poll can be triggered manually by a state
+
 #### 2.2.0 (12-Mai-2019)
 - added support for water outlet
 
