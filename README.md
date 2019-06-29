@@ -53,7 +53,7 @@ Just install the adapter from the iobroker admin interface or fetch it from Gith
 Please note that in adapter versions greater than 2.0.0 ALL data points are opt-in, i.e. a data point has to be selected in the instance configuration explicitly, otherwise, no data points are created.
 
 ## Donation
-If this project helped you to reduce developing time, you can give me a cup of coffee or a bottle of beer via PayPal(chvorholt@gmail.com) :-)  
+If this project helped you to reduce developing time, you may give me a cup of coffee or a bottle of beer via PayPal(chvorholt@gmail.com) :-)  
 
 ## Changelog
 #### 2.3.0 (27-Jun-2019)
