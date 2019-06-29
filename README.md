@@ -18,6 +18,10 @@ This adapter connects to the Gardena Smart System web services. From this web se
 
 The adapter mainly maps Gardena's RESTful API structure to ioBroker's database structure. The adapter distinguishes between "dump" and "smart" data points. Dump data points are directly mapped from Gardena's RESTful API to the ioBroker database. Smart data points are mapped in a "smart" way: If the data point has children that contain metadata, the metadata from these children is used to create one smart data point in the ioBroker database. Only smart data points can be writeable. If this is the case, a special data point is created in the ioBroker's database that can be used to trigger the command. Hence many devices should be supported in a generic way. For experts, all HTTP PUT commands should be supported by smart data points.    
 
+## Examples
+
+For some examples please have a look at the [Wiki](https://github.com/t4qjXH8N/ioBroker.gardena/Wiki)
+
 ## Installation
 Just install the adapter from the iobroker admin interface or fetch it from Github.
 
