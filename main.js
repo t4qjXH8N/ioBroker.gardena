@@ -110,7 +110,8 @@ const adapter_message = function (obj) {
         credentials = obj.message;
 
         function sub_connect() {
-          gardenaCloudConnector.connect(credentials.gardena_username, credentials.gardena_password, function (err) {
+          gardenaCloudConnector.connect(
+            credentials.baseURI, credentials.gardena_username, credentials.gardena_password, function (err) {
             if (!err) {
               adapter.sendTo(obj.from, obj.command, true, obj.callback);
             } else {
@@ -134,7 +135,8 @@ const adapter_message = function (obj) {
 
         // check if already connected (do not care about the credentials)
         if(!gardenaCloudConnector.is_connected()) {
-          gardenaCloudConnector.connect(credentials.gardena_username, credentials.gardena_password, function (err, auth_data) {
+          gardenaCloudConnector.connect(
+            credentials.baseURI, credentials.gardena_username, credentials.gardena_password, function (err, auth_data) {
             if (!err) {
               adapter.sendTo(obj.from, obj.command, auth_data, obj.callback);
             } else {
@@ -191,7 +193,7 @@ function main() {
 
   // connect to gardena smart system service and start polling
   // we need a connection for syncing the states
-  gardenaCloudConnector.connect(null, null, function(err, auth_data) {
+  gardenaCloudConnector.connect(null, null, null, function(err, auth_data) {
     if(err) {
       adapter.log.error(err);
     } else {

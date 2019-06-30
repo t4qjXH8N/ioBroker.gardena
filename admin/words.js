@@ -112,6 +112,18 @@ systemDictionary = {
       "es": "Desmarcar todo",
       "pl": "Odznacz wszystkie"
     },
+    "baseURI": {
+      "en": "Webservice Basis-URL",
+      "de": "Webservice Basis-URL",
+      "ru": "URL-адрес веб-сервиса",
+      "pt": "Base de Webservice URL",
+      "nl": "Webservice Basis-URL",
+      "fr": "URL de base du service Web",
+      "it": "URL di base del servizio Web",
+      "es": "URL de base de servicio web",
+      "pl": "Webservice Basis-URL",
+      "zh-cn": "Webservice Basis-URL"
+    },
     "gardena_smart_datapoints": {
       "en": "Smart datapoints",
       "de": "Intelligente Datenpunkte",

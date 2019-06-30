@@ -120,6 +120,7 @@
         }
 
         let credentials = {
+          "baseURI": $('#baseURI.value').val(),
           "gardena_username": $('#gardena_username.value').val(),
           "gardena_password": $('#gardena_password.value').val()
         };
@@ -154,6 +155,7 @@
         }
 
         let credentials = {
+          "baseURI": $('#baseURI.value').val(),
           "gardena_username": $('#gardena_username.value').val(),
           "gardena_password": $('#gardena_password.value').val()
         };
@@ -471,6 +473,12 @@
                 <div class="row">
                     <div class="input-field col s6">
                         <img src="gardena.png" class="logo">
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="input-field col s12 m6 l4">
+                        <input class="value" id="baseURI" type="text">
+                        <label for="baseURI" class="translate active">baseURI</label>
                     </div>
                 </div>
                 <div class="row">

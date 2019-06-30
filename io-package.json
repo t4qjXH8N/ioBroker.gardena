@@ -1,9 +1,21 @@
 {
     "common": {
         "name":                     "gardena",
-        "version":                  "2.3.0",
+        "version":                  "2.4.0",
         "license":                  "MIT",
         "news": {
+          "2.4.0": {
+            "en": "API Url is configurable",
+            "de": "API-URL ist konfigurierbar",
+            "ru": "URL-адрес API настраивается",
+            "pt": "O URL da API é configurável",
+            "nl": "API-URL kan worden geconfigureerd",
+            "fr": "L'URL de l'API est configurable",
+            "it": "Url API è configurabile",
+            "es": "API Url es configurable",
+            "pl": "Interfejs API Url jest konfigurowalny",
+            "zh-cn": "API网址是可配置的"
+          },
           "2.3.0": {
             "en": "a poll can be triggered manually by a state",
             "de": "Eine Abfrage kann manuell durch einen Status ausgelöst werden",
@@ -131,6 +143,7 @@
         ]
     },
     "native": {
+        "baseURI": "https://sg-api.dss.husqvarnagroup.net",
         "gardena_username": "me@me.com",
         "gardena_password": "secret",
         "gardena_reconnect_interval": "300",
