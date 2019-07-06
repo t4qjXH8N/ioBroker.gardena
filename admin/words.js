@@ -113,16 +113,16 @@ systemDictionary = {
       "pl": "Odznacz wszystkie"
     },
     "baseURI": {
-      "en": "Webservice Basis-URL",
-      "de": "Webservice Basis-URL",
-      "ru": "URL-адрес веб-сервиса",
-      "pt": "Base de Webservice URL",
-      "nl": "Webservice Basis-URL",
-      "fr": "URL de base du service Web",
-      "it": "URL di base del servizio Web",
-      "es": "URL de base de servicio web",
-      "pl": "Webservice Basis-URL",
-      "zh-cn": "Webservice Basis-URL"
+      "en": "Webservice Basis-URL (https://sg-api.dss.husqvarnagroup.net)",
+      "de": "Webservice Basis-URL (https://sg-api.dss.husqvarnagroup.net)",
+      "ru": "URL-адрес веб-сервиса (https://sg-api.dss.husqvarnagroup.net)",
+      "pt": "Base de Webservice URL (https://sg-api.dss.husqvarnagroup.net)",
+      "nl": "Webservice Basis-URL (https://sg-api.dss.husqvarnagroup.net)",
+      "fr": "URL de base du service Web (https://sg-api.dss.husqvarnagroup.net)",
+      "it": "URL di base del servizio Web (https://sg-api.dss.husqvarnagroup.net)",
+      "es": "URL de base de servicio web (https://sg-api.dss.husqvarnagroup.net)",
+      "pl": "Webservice Basis-URL (https://sg-api.dss.husqvarnagroup.net)",
+      "zh-cn": "Webservice Basis-URL (https://sg-api.dss.husqvarnagroup.net)"
     },
     "gardena_smart_datapoints": {
       "en": "Smart datapoints",
