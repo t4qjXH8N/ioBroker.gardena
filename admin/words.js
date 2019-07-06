@@ -135,6 +135,30 @@ systemDictionary = {
       "es": "Puntos de datos inteligentes",
       "pl": "Inteligentne punkty danych"
     },
+    "gardena_autopoll": {
+      "en": "Update states after command",
+      "de": "Status nach Befehl aktualisieren",
+      "ru": "Обновление состояний после команды",
+      "pt": "Atualizar estados após o comando",
+      "nl": "Update de staten na het commando",
+      "fr": "Mettre à jour les états après la commande",
+      "it": "Aggiorna stati dopo il comando",
+      "es": "Actualizar estados después de comando",
+      "pl": "Zaktualizuj stany po poleceniu",
+      "zh-cn": "命令后更新状态"
+    },
+    "gardena_autopoll_delay": {
+      "en": "Delay for update (s)",
+      "de": "Verzögerung für das Update (s)",
+      "ru": "Задержка для обновления (s)",
+      "pt": "Atraso para atualização (s)",
+      "nl": "Vertraging voor update (s)",
+      "fr": "Délai de mise à jour (s)",
+      "it": "Ritardo per l'aggiornamento (s)",
+      "es": "Retraso para actualización (s)",
+      "pl": "Opóźnienie aktualizacji (s)",
+      "zh-cn": "延迟更新 (s)"
+    },
     "gardena_update_locations_counter": {
       "en": "Update of locations every x-th poll only",
       "de": "Aktualisierung der Standorte nur bei jeder x-ten Abfrage",

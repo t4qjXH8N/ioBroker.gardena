@@ -69,25 +69,49 @@ const adapter_stateChange = function (id, state) {
   // a poll was manually triggered
   if(id && state && id === 'gardena.' + adapter.instance + '.' + trigger_poll_state && state.val === true) {
     gardenaCloudConnector.poll(function (err) {
+      if(err) adapter.log.error(err);
+
       adapter.setState(trigger_poll_state, false, false); // reset trigger state
-      adapter.log.debug('A poll was triggered manually.');
+      adapter.log.debug('A poll has been triggered manually.');
     });
+  }
+
+  // helper function for autopolling
+  function check_autopoll() {
+    let gardena_conf = gardenaCloudConnector.get_gardena_config();
+
+    // autopoll after trigger?
+    if (gardena_conf.gardena_autopoll) {
+      setTimeout(
+        function () {
+          gardenaCloudConnector.poll(function (err) {
+            if(err) {
+              adapter.log.error(err);
+            } else {
+              adapter.log.debug('A poll has been triggered by a triggered event.');
+            }
+          })},
+          Number(gardena_conf.gardena_autopoll_delay) * 1000
+      );
+    }
   }
 
   // you can use the ack flag to detect if it is status (true) or command (false)
   if (state && state.val && !state.ack && id.split('.')[id.split('.').length-1] === 'trigger') {
     triggeredEvent(id, function (err) {
       if(err) adapter.log.error('An error occurred during trigger!');
-      // reset trigger
-      adapter.setState(id, false);
+
+      adapter.setState(id, false, false);  // reset trigger
+      check_autopoll();
     });
   }
 
   if (state && state.val && !state.ack && id.split('.')[id.split('.').length-1] === 'smart_trigger') {
     triggeredSmartEvent(id, function (err) {
       if(err) adapter.log.error('An error occurred during smart trigger!');
-      // reset trigger
-      adapter.setState(id, false);
+
+      adapter.setState(id, false, false);  // reset trigger
+      check_autopoll();
     });
   }
 };
@@ -210,7 +234,7 @@ function main() {
   adapter.subscribeStates(trigger_poll_state)
 }
 
-// a command was triggered
+// a command has been triggered
 function triggeredEvent(id, callback) {
   let locationid = id.split('.').slice(3, 4);
   let deviceid = id.split('.')[4];
@@ -246,7 +270,7 @@ function triggeredEvent(id, callback) {
   });
 }
 
-// a smart command was triggered
+// a smart command has been triggered
 function triggeredSmartEvent(id, callback) {
   let locationid = id.split('.')[3];
   let deviceid = id.split('.')[4];

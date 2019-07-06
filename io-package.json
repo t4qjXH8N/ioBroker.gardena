@@ -1,9 +1,21 @@
 {
     "common": {
         "name":                     "gardena",
-        "version":                  "2.4.1",
+        "version":                  "2.5.0",
         "license":                  "MIT",
         "news": {
+          "2.5.0": {
+            "en": "states are updated after a command was sent",
+            "de": "Zustände werden aktualisiert, nachdem ein Befehl gesendet wurde",
+            "ru": "состояния обновляются после отправки команды",
+            "pt": "estados são atualizados depois que um comando foi enviado",
+            "nl": "staten worden bijgewerkt nadat een opdracht is verzonden",
+            "fr": "les états sont mis à jour après l'envoi d'une commande",
+            "it": "gli stati vengono aggiornati dopo l'invio di un comando",
+            "es": "Los estados se actualizan después de que se envió un comando",
+            "pl": "stany są aktualizowane po wysłaniu polecenia",
+            "zh-cn": "发送命令后更新状态"
+          },
           "2.4.1": {
             "en": "fixed an error when sending commands",
             "de": "Fehler beim Senden von Befehlen behoben",
@@ -158,6 +170,8 @@
         "baseURI": "https://sg-api.dss.husqvarnagroup.net",
         "gardena_username": "me@me.com",
         "gardena_password": "secret",
+        "gardena_autopoll": true,
+        "gardena_autopoll_delay": 1,
         "gardena_reconnect_interval": "300",
         "gardena_polling_interval": "600"
     },
