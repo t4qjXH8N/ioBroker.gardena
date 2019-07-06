@@ -1,9 +1,21 @@
 {
     "common": {
         "name":                     "gardena",
-        "version":                  "2.4.0",
+        "version":                  "2.4.1",
         "license":                  "MIT",
         "news": {
+          "2.4.1": {
+            "en": "fixed an error when sending commands",
+            "de": "Fehler beim Senden von Befehlen behoben",
+            "ru": "исправлена ошибка при отправке команд",
+            "pt": "corrigido um erro ao enviar comandos",
+            "nl": "een fout verholpen bij het verzenden van opdrachten",
+            "fr": "correction d'une erreur lors de l'envoi de commandes",
+            "it": "corretto un errore durante l'invio di comandi",
+            "es": "arreglado un error al enviar comandos",
+            "pl": "naprawiono błąd podczas wysyłania poleceń",
+            "zh-cn": "发送命令时修复了错误"
+          },
           "2.4.0": {
             "en": "API Url is configurable",
             "de": "API-URL ist konfigurierbar",
@@ -28,7 +40,7 @@
             "pl": "ankieta może zostać wywołana ręcznie przez stan",
             "zh-cn": "民意调查可以由州手动触发"
           },
-          "2.2.0":  {
+          "2.2.0": {
             "en": "added support for water outlet",
             "de": "Unterstützung für Wasseraustritt hinzugefügt",
             "ru": "добавлена ​​поддержка выхода воды",
@@ -87,7 +99,7 @@
             "es": "Se solucionó el problema donde algunos estados SMART no se actualizaron",
             "pl": "naprawiono problem, w którym niektóre SMART stany nie były aktualizowane"
           },
-          "2.0.0":  {
+          "2.0.0": {
             "en": "Datapoints for the ioBroker-database can be selected from the Gardena web service. Generic support for Gardena devices that support RESTful interactions.",
             "de": "Datenpunkte für die ioBroker-Datenbank können aus dem Gardena-Webservice ausgewählt werden. Generische Unterstützung für Gardena-Geräte, die REST-konforme Interaktionen unterstützen.",
             "ru": "Datapoints для базы данных ioBroker можно выбрать из веб-службы Gardena. Общая поддержка устройств Gardena, поддерживающих взаимодействие RESTful.",
