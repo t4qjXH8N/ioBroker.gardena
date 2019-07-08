@@ -313,7 +313,7 @@ function syncConfig(cloud_data) {
   // create locations inside the datapoints structure
   gardenaDBConnector.syncDBDatapoints(cloud_data, function(err) {
     // do we have to create commands for devices?
-    gardenaDBConnector.createHTTPPostDatapointsinDB(cloud_data);
+    gardenaDBConnector.createHTTPPostDatapointsInDB(cloud_data);
   });
 }
 

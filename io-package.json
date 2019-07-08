@@ -1,9 +1,21 @@
 {
     "common": {
         "name":                     "gardena",
-        "version":                  "2.5.0",
+        "version":                  "2.5.1",
         "license":                  "MIT",
         "news": {
+          "2.5.1": {
+            "en": "Sensor measurements can be triggered manually.",
+            "de": "Sensormessungen können manuell ausgelöst werden.",
+            "ru": "измерения датчика могут быть запущены вручную.",
+            "pt": "As medições do sensor podem ser disparadas manualmente.",
+            "nl": "Sensormetingen kunnen handmatig worden geactiveerd.",
+            "fr": "Les mesures du capteur peuvent être déclenchées manuellement.",
+            "it": "Le misurazioni del sensore possono essere attivate manualmente.",
+            "es": "Las mediciones del sensor se pueden activar manualmente.",
+            "pl": "Pomiary czujnika mogą być uruchamiane ręcznie.",
+            "zh-cn": "传感器测量可以手动触发。"
+          },
           "2.5.0": {
             "en": "states are updated after a command was sent",
             "de": "Zustände werden aktualisiert, nachdem ein Befehl gesendet wurde",

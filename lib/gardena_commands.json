@@ -41,25 +41,38 @@
 	},
     {
         "category": "sensor",
-        "baseURI": "abilities/sensor/command",
+        "baseURI": "abilities/ambient_temperature/command",
         "commands": [
             {
           "cmd_desc": "measure_ambient_temperature",
           "name": "measure_ambient_temperature",
           "parameters": []
-        },
-        {
-          "cmd_desc": "measure_light",
-          "name": "measure_light",
-          "parameters": []
-        },
-        {
-          "cmd_desc": "measure_soil_humidity",
-          "name": "measure_soil_humidity",
-          "parameters": []
-        }
-      ]
-    }, {
+			}
+		]
+	},
+	{
+		"category": "sensor",
+		"baseURI": "abilities/light/command",
+		"commands": [
+			{
+				"cmd_desc": "measure_light",
+				"name": "measure_light",
+				"parameters": []
+			}
+		]
+	},
+	{
+		"category": "sensor",
+		"baseURI": "abilities/humidity/command",
+		"commands": [
+			{
+				"cmd_desc": "measure_soil_humidity",
+				"name": "measure_soil_humidity",
+				"parameters": []
+			}
+		]
+	},
+    {
 	"category": "outlet",
 	"baseURI": "abilities/outlet/command",
 	"commands": [
