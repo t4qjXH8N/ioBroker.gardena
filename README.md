@@ -34,7 +34,7 @@ If this project helped you to reduce developing time, you may give me a cup of c
 
 ## Changelog
 #### 2.5.2 (01-Sep-2019)
-- javascript error in admin interface fixed
+- javascript error in admin interface fixed 
 
 #### 2.5.1 (08-Jul-2019)
 - sensor measurements can be triggered manually
