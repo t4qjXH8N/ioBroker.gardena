@@ -1,9 +1,21 @@
 {
     "common": {
         "name":                     "gardena",
-        "version":                  "2.5.1",
+        "version":                  "2.5.2",
         "license":                  "MIT",
         "news": {
+          "2.5.2": {
+            "en": "javascript error in admin interface fixed",
+            "de": "Javascript-Fehler in der Admin-Oberfläche behoben",
+            "ru": "Исправлена ошибка JavaScript в интерфейсе администратора",
+            "pt": "Corrigido o erro de javascript na interface do administrador",
+            "nl": "javascript-fout in admin-interface opgelost",
+            "fr": "erreur javascript dans l'interface d'administration corrigée",
+            "it": "errore javascript nell'interfaccia di amministrazione risolto",
+            "es": "error de JavaScript en la interfaz de administrador corregido",
+            "pl": "naprawiono błąd javascript w interfejsie administratora",
+            "zh-cn": "修复了管理界面中的javascript错误"
+          },
           "2.5.1": {
             "en": "Sensor measurements can be triggered manually.",
             "de": "Sensormessungen können manuell ausgelöst werden.",

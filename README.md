@@ -33,6 +33,9 @@ Please note that in adapter versions greater than 2.0.0 ALL data points are opt-
 If this project helped you to reduce developing time, you may give me a cup of coffee or a bottle of beer via PayPal(chvorholt@gmail.com) :-)  
 
 ## Changelog
+#### 2.5.2 (01-Sep-2019)
+- javascript error in admin interface fixed
+
 #### 2.5.1 (08-Jul-2019)
 - sensor measurements can be triggered manually
 

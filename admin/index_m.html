@@ -106,6 +106,14 @@
       gonChange(true);
     });
 
+    if (!gsettings) {
+        gsettings = {};
+    }
+
+    if (!gsettings.gardena_datapoints) {
+        gsettings.gardena_datapoints = {};
+    }
+
     $('#btn_check_connection').on('click', function () {
       let active = false;
       getIsAdapterAlive(function (isAlive) {
@@ -434,7 +442,7 @@
 
         $('#' + root_id + conf_seperator + citem + '_checkbox_input').val(JSON.stringify(val));
 
-        // add action for dump datapoints
+        // add action for dumb datapoints
         $('#' + root_id + conf_seperator + citem + '_checkbox').change(function() {
             let cval = $('#' + this.id + '_input').val();
             let data = JSON.parse(cval);
