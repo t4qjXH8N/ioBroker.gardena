@@ -11,6 +11,11 @@ ioBroker gardena adapter
 
 This is an [ioBroker](https://github.com/ioBroker/ioBroker) Adapter supporting the Gardena Smart System web service.  
 
+# Should we continue the development of this adapter?
+Dear users,
+
+the point is that Gardena wants people to use the Gardena API which can be done using the Smart Garden Adapter. My adapter uses a different approach, it mocks more or less the Gardena App. So, at the moment I am not sure if it is worth to continue the development of the adapter.
+
 ## Description
 
 This adapter connects to the Gardena Smart System web services. From this web service data from all devices  is retrieved and stored in ioBroker states. These states are updated in a given interval, hence the states should be up to date. At the moment it can retrieve data from all Gardena devices. Some Gardena devices can be controlled.
